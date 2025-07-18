@@ -1,0 +1,1071 @@
+/* CSS untuk navbar yang sama dengan Navbar.jsx */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100% - var(--scrollbar-width, 0px));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  padding: 0.5rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.header.scrolled {
+  padding: 0.3rem 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.nav__list {
+  display: flex;
+  align-items: center;
+}
+
+.nav__menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.nav__item {
+  position: relative;
+}
+
+.nav__item a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  padding: 0.5rem 0;
+  display: block;
+  position: relative;
+}
+
+.nav__link-text {
+  position: relative;
+  padding: 0.3rem 0;
+}
+
+.nav__item a:hover {
+  color: #ff6b6b;
+}
+
+.nav__link-text::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ff6b6b;
+  transition: width 0.3s ease;
+}
+
+.nav__item a:hover .nav__link-text::after,
+.nav__item a.active .nav__link-text::after {
+  width: 100%;
+}
+
+.nav__item.active a {
+  color: #ff6b6b;
+}
+
+/* Toggle button for mobile nav */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 30px;
+  height: 24px;
+  position: relative;
+  z-index: 1001;
+}
+
+.nav-toggle span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: #ff6b6b;
+  border-radius: 3px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .3s ease-in-out;
+}
+
+.nav-toggle span:nth-child(1) {
+  top: 0px;
+}
+
+.nav-toggle span:nth-child(2) {
+  top: 10px;
+}
+
+.nav-toggle span:nth-child(3) {
+  top: 20px;
+}
+
+.nav-toggle.active span:nth-child(1) {
+  top: 10px;
+  transform: rotate(135deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.nav-toggle.active span:nth-child(3) {
+  top: 10px;
+  transform: rotate(-135deg);
+}
+
+/* User dropdown */
+.user-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  transition: all 0.3s;
+  background-color: #fff8f8;
+  border: 1px solid #ffe0e0;
+}
+
+.user-name:hover {
+  background-color: #fff0f0;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 115%;
+  min-width: 150px;
+  background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 8px 0;
+  z-index: 100;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.dropdown-content a:hover {
+  background-color: #f9f9f9;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 15px;
+  color: #e74c3c;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: left;
+}
+
+.logout-button:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Desktop only elements */
+.desktop-only {
+  display: none;
+}
+
+/* Mobile profile and logout items */
+.mobile-profile-item,
+.mobile-logout-item {
+  display: none;
+}
+
+/* Mobile logout button styling */
+.mobile-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 15px;
+  color: #e74c3c;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: left;
+}
+
+.mobile-logout-button:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Responsive Styles for Navbar */
+@media screen and (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem;
+  }
+  
+  .header__title {
+    font-size: 1.2rem;
+  }
+  
+  .nav-toggle {
+    display: block;
+  }
+  
+  .nav__list {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    padding: 4rem 2rem 2rem;
+    transition: right 0.3s ease;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1000;
+  }
+  
+  .nav__list.nav-open {
+    right: 0;
+  }
+  
+  .nav__menu {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
+  
+  .nav__item {
+    width: 100%;
+  }
+  
+  .nav__item a {
+    padding: 0.8rem 0;
+    width: 100%;
+  }
+
+  /* Hide desktop user dropdown on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Show mobile profile and logout items */
+  .mobile-profile-item,
+  .mobile-logout-item {
+    display: block;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .mobile-profile-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 15px;
+    width: 100%;
+  }
+  
+  .mobile-logout-item {
+    margin-bottom: 10px;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  /* Hide mobile elements on desktop */
+  .mobile-profile-item,
+  .mobile-logout-item {
+    display: none !important;
+  }
+  
+  /* Show desktop dropdown on desktop */
+  .desktop-only {
+    display: block;
+  }
+  
+  /* Dropdown toggle with click */
+  .dropdown-content.show {
+    display: block;
+  }
+}
+
+/* Adjust spacing to account for fixed navbar */
+.page-container {
+  padding-top: 80px; /* Adjusted to give space below fixed navbar */
+}
+
+/* Header Styles */
+.user-header {
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.header-logo h1 {
+  font-size: 1.5rem;
+  color: #ff6b6b;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Menu Navigasi */
+.nav-menu {
+  display: flex;
+  margin: 0 auto;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 25px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 5px 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ff6b6b;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ff6b6b;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #fff8f8;
+  border-radius: 30px;
+  border: 1px solid #ffe0e0;
+}
+
+.user-icon {
+  color: #ff6b6b;
+  font-size: 1.2rem;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #444;
+}
+
+.header-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-logout-btn:hover {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+/* Container Umum */
+.page-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffe6ec, #fff);
+  padding: 40px 20px;
+}
+
+/* Wrapper Konten */
+.user-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  position: relative;
+  overflow: hidden;
+}
+
+.user-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(to right, #ff6b6b, #ffb8b8);
+}
+
+/* Judul */
+.user-wrapper h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.user-wrapper p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+/* Grid Layout */
+.user-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+/* Form Reservasi */
+.reservation-form {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reservation-form:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.1);
+}
+
+.reservation-form h2 {
+  margin-top: 0;
+  color: #ff6b6b;
+  position: relative;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.reservation-form h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #ff6b6b, #ffb8b8);
+  border-radius: 10px;
+}
+
+.reservation-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.reservation-form label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.reservation-form select, 
+.reservation-form input {
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.reservation-form select:focus, 
+.reservation-form input:focus {
+  outline: none;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.reservation-form select:hover, 
+.reservation-form input:hover {
+  border-color: #ff6b6b;
+}
+
+/* Style untuk input tanggal */
+.date-input-container {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.date-input-container input[type="date"] {
+  width: 100%;
+  margin-bottom: 0;
+  height: 45px;
+  cursor: pointer;
+}
+
+.reservation-form input[type="date"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.reservation-form input[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: transparent;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  color: #ff6b6b;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.reservation-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.reservation-form .date-selected {
+  border-color: #ff6b6b;
+  background-color: #fff8f8;
+}
+
+.reservation-form .date-instruction {
+  margin: -5px 0 15px;
+  font-size: 0.85rem;
+  color: #888;
+  font-style: italic;
+  padding-left: 2px;
+}
+
+.reservation-form .selected-date-display {
+  margin: -5px 0 15px;
+  font-size: 0.9rem;
+  color: #ff6b6b;
+  padding: 5px 2px;
+  font-weight: 500;
+  background-color: transparent;
+  border: none;
+}
+
+.reservation-form .selected-date-display strong {
+  font-weight: 600;
+}
+
+.reservation-form button {
+  padding: 14px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.reservation-form button:hover {
+  background-color: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+.reservation-form button:disabled {
+  background-color: #ffb8b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Tabel Riwayat */
+.reservation-history {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reservation-history:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.1);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.history-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, #ff6b6b, transparent);
+}
+
+.history-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.refresh-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ff6b6b;
+  color: white;
+  width: auto;
+}
+
+.refresh-btn:hover {
+  background-color: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2);
+}
+
+.refresh-btn:disabled {
+  background-color: #f1f1f1;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.reservation-history h2 {
+  margin-top: 0;
+  color: #ff6b6b;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Tabel Reservasi */
+.reservation-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 10px;
+}
+
+.reservation-table th, 
+.reservation-table td {
+  padding: 15px;
+  text-align: left;
+  color: #000000; /* Mengubah warna teks menjadi hitam */
+}
+
+.reservation-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+}
+
+.reservation-table tr:not(:last-child) td {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.reservation-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.reservation-table tbody tr:hover {
+  background-color: #fff8f8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.03);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.no-reservations {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-style: italic;
+  background-color: #fafafa;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+/* Status styles */
+.status-confirmed {
+  color: #2e7d32;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: rgba(46, 125, 50, 0.1);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.status-pending {
+  color: #ed6c02;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: rgba(237, 108, 2, 0.1);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.status-canceled {
+  color: #d32f2f;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: rgba(211, 47, 47, 0.1);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+/* Tombol Logout */
+.logout-btn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 2px solid #ff6b6b;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ff6b6b;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.2);
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.pagination-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #555;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #ff6b6b;
+  color: white;
+  border-color: #ff6b6b;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  margin: 0 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Responsif */
+@media (max-width: 992px) {
+  .user-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .reservation-form, 
+  .reservation-history {
+    margin-bottom: 20px;
+    height: auto;
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .nav-links {
+    gap: 15px;
+  }
+  
+  .nav-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 20px 15px;
+  }
+  
+  .user-wrapper {
+    padding: 20px;
+  }
+  
+  .user-wrapper h1 {
+    font-size: 1.8rem;
+  }
+  
+  .header-container {
+    padding: 0 15px;
+  }
+  
+  .header-logo h1 {
+    font-size: 1.2rem;
+  }
+  
+  /* Mobile Navigation */
+  .mobile-menu-toggle {
+    display: block;
+    order: 3;
+  }
+  
+  .nav-menu {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  .nav-menu.active {
+    max-height: 300px;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .nav-links {
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+  
+  .nav-link {
+    display: block;
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .user-info {
+    padding: 6px 10px;
+  }
+  
+  .header-logout-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .header-container {
+    justify-content: space-between;
+  }
+  
+  .header-logo {
+    order: 1;
+  }
+  
+  .header-user {
+    order: 2;
+    gap: 8px;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .history-actions {
+    width: 100%;
+  }
+  
+  .refresh-btn, .test-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .reservation-table {
+    font-size: 0.9rem;
+  }
+  
+  .reservation-table th, 
+  .reservation-table td {
+    padding: 12px;
+  }
+  
+  .status-confirmed,
+  .status-pending,
+  .status-canceled {
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-user {
+    gap: 8px;
+  }
+  
+  .user-name {
+    display: none; /* Hide username on very small screens */
+  }
+  
+  .header-logout-btn span {
+    display: none; /* Hide logout text on very small screens */
+  }
+}

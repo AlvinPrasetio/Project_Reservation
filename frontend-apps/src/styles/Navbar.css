@@ -1,0 +1,446 @@
+/* Navbar.css */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100% - var(--scrollbar-width, 0px));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  padding: 0.5rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+/* Script untuk mendeteksi lebar scrollbar dan mengatur CSS variable */
+:root {
+  --scrollbar-width: 0px;
+}
+
+.header.scrolled {
+  padding: 0.3rem 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.nav__list {
+  display: flex;
+  align-items: center;
+}
+
+.nav__menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.nav__item {
+  position: relative;
+}
+
+.nav__item a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  padding: 0.5rem 0;
+  display: block;
+  position: relative;
+}
+
+.nav__link-text {
+  position: relative;
+  padding: 0.3rem 0;
+}
+
+.nav__item a:hover {
+  color: #ff6b6b;
+}
+
+.nav__link-text::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #ff6b6b;
+  transition: width 0.3s ease;
+}
+
+.nav__item a:hover .nav__link-text::after {
+  width: 100%;
+}
+
+.nav__item.active a {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.nav__item.active .nav__link-text::after {
+  width: 100%;
+  background-color: #ff6b6b;
+}
+
+.btn-login {
+  background-color: #ff6b6b;
+  color: white !important;
+  padding: 0.5rem 1.5rem !important;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
+}
+
+.btn-login:hover {
+  background-color: #ff5252;
+  transform: translateY(-2px);
+}
+
+.login-item {
+  margin-left: 0; /* Menghilangkan margin khusus untuk login item */
+}
+
+/* Toggle button for mobile nav */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 30px;
+  height: 24px;
+  position: relative;
+  z-index: 1001;
+}
+
+.nav-toggle span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: #ff6b6b;
+  border-radius: 3px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: .3s ease-in-out;
+}
+
+.nav-toggle span:nth-child(1) {
+  top: 0px;
+}
+
+.nav-toggle span:nth-child(2) {
+  top: 10px;
+}
+
+.nav-toggle span:nth-child(3) {
+  top: 20px;
+}
+
+.nav-toggle.active span:nth-child(1) {
+  top: 10px;
+  transform: rotate(135deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.nav-toggle.active span:nth-child(3) {
+  top: 10px;
+  transform: rotate(-135deg);
+}
+
+/* User Dropdown Styles */
+.user-item {
+  position: relative;
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-dropdown .user-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background-color: #fff8f8;
+  border-radius: 30px;
+  border: 1px solid #ffe0e0;
+  color: #333;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.user-dropdown .user-icon {
+  color: #ff6b6b;
+}
+
+.user-dropdown:hover .user-name {
+  background-color: #ffe0e0;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 10px 0;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.user-dropdown:hover .dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(5px);
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+.logout-button,
+.edit-profile-button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s;
+}
+
+.dropdown-content a:hover,
+.logout-button:hover,
+.edit-profile-button:hover {
+  background-color: #f9f9f9;
+}
+
+/* Desktop only elements */
+.desktop-only {
+  display: none;
+}
+
+/* Mobile profile and logout items */
+.mobile-profile-item,
+.mobile-logout-item {
+  display: none;
+}
+
+/* Mobile logout button styling */
+.mobile-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 15px;
+  color: #e74c3c;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: left;
+}
+
+.mobile-logout-button:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem;
+  }
+  
+  .header__inner {
+    width: 100%;
+  }
+  
+  .nav-toggle {
+    display: block;
+  }
+  
+  .nav__list {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    padding: 4rem 1.5rem 2rem;
+    transition: right 0.3s ease;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1000;
+  }
+  
+  .nav__list.nav-open {
+    right: 0;
+  }
+  
+  .nav__menu {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .nav__item {
+    width: 100%;
+    margin: 0.5rem 0;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  .nav__item:last-child {
+    border-bottom: none;
+  }
+  
+  .nav__item a {
+    display: block;
+    padding: 0.7rem 0;
+    font-size: 1.1rem;
+  }
+  
+  .login-item {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+  
+  .btn-login {
+    display: inline-block;
+    text-align: center;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+
+  .user-dropdown .user-name {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .dropdown-content {
+    position: static;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    min-width: 100%;
+    background-color: #f9f9f9;
+    margin-top: 10px;
+    border-radius: 5px;
+  }
+  
+  .user-dropdown:hover .dropdown-content {
+    transform: none;
+  }
+  
+  .nav__menu .user-item {
+    margin-top: 15px;
+  }
+  
+  .dropdown-content a,
+  .dropdown-content .logout-button {
+    padding: 10px;
+  }
+
+  /* Hide desktop user dropdown on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Show mobile profile and logout items */
+  .mobile-profile-item,
+  .mobile-logout-item {
+    display: block;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .mobile-profile-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 15px;
+    width: 100%;
+  }
+  
+  .mobile-logout-item {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header__title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Mengatur ulang CSS variable saat window resize */
+@media only screen {
+  :root {
+    --scrollbar-width: 17px; /* Nilai default untuk scrollbar pada kebanyakan browser */
+  }
+}
+
+@media screen and (min-width: 769px) {
+  /* Hide mobile elements on desktop */
+  .mobile-profile-item,
+  .mobile-logout-item {
+    display: none !important;
+  }
+  
+  /* Show desktop dropdown on desktop */
+  .desktop-only {
+    display: block;
+  }
+  
+  /* Dropdown toggle with click */
+  .dropdown-content.show {
+    display: block;
+  }
+}

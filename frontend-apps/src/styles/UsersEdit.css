@@ -1,0 +1,79 @@
+.users-edit-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem 1.5rem 2rem 1.5rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+  margin-top: 80px;
+}
+
+.edit-profile-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.users-edit-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.users-edit-form label {
+  margin-top: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.users-edit-form input {
+  padding: 0.75rem 1rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  background-color: #fff;
+  box-sizing: border-box;
+  width: 100%;
+  white-space: normal;
+}
+
+.users-edit-form button {
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.users-edit-form button:hover {
+  background-color: #ff5252;
+}
+
+.users-edit-form button:disabled {
+  background-color: #f8bbd0;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.success-message {
+  color: #388e3c;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
