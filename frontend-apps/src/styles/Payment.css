@@ -1,31 +1,32 @@
 .payment-container {
   max-width: 600px;
-  margin: 30px auto;
-  padding: 30px;
+  margin: 3rem auto 4rem auto;
+  padding: 2.5rem 3rem;
   border: 2px solid #f97316; /* orange border */
   background-color: #fff0f5; /* light pink background */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(249, 115, 22, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.2);
   margin-top: 80px;
 }
 
 .payment-container h2 {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 2rem;
   color: #d946ef; /* pinkish purple */
   font-weight: 700;
+  font-size: 1.8rem;
 }
 
 .payment-info p {
-  margin: 8px 0;
-  font-size: 1rem;
-  line-height: 1.4;
+  margin: 1rem 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
 }
 
 .payment-methods {
-  margin-top: 25px;
+  margin-top: 2.5rem;
   display: flex;
   justify-content: space-between;
   gap: 20px;
@@ -34,8 +35,8 @@
 .payment-methods label {
   flex: 1;
   border: 1px solid #f97316;
-  padding: 15px 20px;
-  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
   color: #1f2937; /* dark slate */
   font-weight: 600;
   cursor: pointer;
@@ -59,7 +60,7 @@
 }
 
 .rekening {
-  font-size: 0.9em;
+  font-size: 1rem;
   color: #6b7280; /* gray-500 */
   margin-left: 10px;
   font-weight: 400;
@@ -67,7 +68,7 @@
 
 .wa-button {
   display: block;
-  margin: 20px auto;
+  margin: 1.25rem auto;
   width: fit-content;
   padding: 10px 20px;
   background-color: #25d366; /* WhatsApp green */
@@ -86,7 +87,7 @@
 .payment-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 30px;
+  margin-top: 3rem;
   gap: 15px;
 }
 
@@ -96,10 +97,10 @@
   background-color: #f97316; /* orange-500 */
   border: none;
   color: white;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: background-color 0.3s ease;
 }
 

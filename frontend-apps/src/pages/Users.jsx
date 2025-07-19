@@ -519,7 +519,7 @@ const Users = () => {
                               className="clickable-row"
                               onClick={() => {
                                 console.log("Clicked reservation ID:", res.id);
-                                navigate(`/detail-reservasi/${res.id}`);
+                                navigate(`/detail-reservasi/${res.id}`, { state: { reservation: res } });
                               }}
                               style={{ cursor: "pointer" }}
                             >
