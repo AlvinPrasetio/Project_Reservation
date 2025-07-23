@@ -3,24 +3,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../styles/DetailReservasi.css";
 
-const servicePrices = {
-  "Facial": 125000,
-  "Creambath": 85000,
-  "Hair Mask": 100000,
-  "Hair Spa": 100000,
-  "Body Scrub": 100000,
-  "Rebonding": 350000,
-  "Smoothing": 320000,
-  "Make Up": 150000,
-  "Hair Coloring": 200000
-};
-
 const DetailReservasi = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
   const [reservation, setReservation] = useState(state?.reservation || state?.selectedReservation || null);
   const [loading, setLoading] = useState(false);
+  const [layananData, setLayananData] = useState([]);
 
   useEffect(() => {
     if (!reservation) {
@@ -48,6 +37,17 @@ const DetailReservasi = () => {
   }, [id, reservation, navigate]);
 
   useEffect(() => {
+    fetch("http://localhost:5000/layanan")
+      .then((res) => res.json())
+      .then((data) => {
+        setLayananData(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching layanan data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
     if (!reservation && !loading) {
       navigate("/users");
     }
@@ -69,7 +69,9 @@ const DetailReservasi = () => {
     return null;
   }
 
-  const harga = servicePrices[reservation.layanan] || "Belum ditentukan";
+  const layananDetail = layananData.find(l => l.id === reservation.layanan_id);
+  const harga = layananDetail ? layananDetail.harga : "Belum ditentukan";
+  const deskripsi = layananDetail ? layananDetail.deskripsi : "";
 
   return (
     <div className="detail-container">
@@ -81,6 +83,7 @@ const DetailReservasi = () => {
         <p><strong>Jam    :</strong> {reservation.jam}</p>
         <p><strong>No HP  :</strong> {reservation.no_hp}</p>
         <p><strong>Harga  :</strong> {typeof harga === "number" ? `Rp ${harga.toLocaleString('id-ID')}` : harga}</p>
+        <p><strong>Deskripsi  :</strong> {deskripsi}</p>
         <p><strong>Status :</strong> {reservation.status}</p>
       </div>
       <button className="btn-back" onClick={() => navigate("/users")}>Kembali</button>

@@ -1,32 +1,46 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../styles/Payment.css";
-
-const servicePrices = {
-  "Facial": 125000,
-  "Creambath": 85000,
-  "Hair Mask": 100000,
-  "Hair Spa": 100000,
-  "Body Scrub": 100000,
-  "Rebonding": 350000,
-  "Smoothing": 320000,
-  "Make Up": 150000,
-  "Hair Coloring": 200000
-};
 
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { id } = useParams();
   const [reservation, setReservation] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("");
 
   useEffect(() => {
+    const fetchReservation = async (reservationId) => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Silakan login terlebih dahulu.");
+          navigate("/login");
+          return;
+        }
+        const response = await fetch(`http://localhost:5000/reservasi/${reservationId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data reservasi");
+        }
+        const data = await response.json();
+        setReservation(data);
+      } catch (error) {
+        console.error(error);
+        alert("Gagal mengambil data reservasi.");
+        navigate("/users");
+      }
+    };
+
     if (location.state && location.state.reservation) {
       setReservation(location.state.reservation);
+    } else if (id) {
+      fetchReservation(id);
     } else {
       navigate("/users");
     }
-  }, [location, navigate]);
+  }, [location, navigate, id]);
 
   const handlePay = () => {
     if (!paymentMethod) {
@@ -43,7 +57,12 @@ const Payment = () => {
     return null;
   }
 
-  const price = servicePrices[reservation.layanan] || 0;
+  const price = reservation.harga || 0;
+  const formattedDate = new Date(reservation.tanggal_reservasi).toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <div className="payment-container">
@@ -51,12 +70,12 @@ const Payment = () => {
 
       <div className="payment-info">
         <p>Nama Pelanggan : {reservation.nama}</p>
-        <p>Layanan Dipilih : {reservation.layanan}</p>
-        <p>Tanggal Reservasi : {reservation.tanggal_reservasi}</p>
+        <p>Layanan Dipilih : {reservation.nama_layanan || reservation.layanan}</p>
+        <p>Tanggal Reservasi : {formattedDate}</p>
         <p>Jam Reservasi : {reservation.jam}</p>
         <p>No HP : {reservation.no_hp}</p>
         <p>Harga Layanan : Rp {price.toLocaleString("id-ID")}</p>
-        <p>Status Pembayaran : Belum Dibayar</p>
+        <p>Status Pembayaran : {reservation.status || "Belum Dibayar"}</p>
       </div>
 
       <h3>Metode Pembayaran</h3>
@@ -90,7 +109,6 @@ const Payment = () => {
       >
         Konfirmasi WhatsApp
       </a>
-
 
       <div className="payment-buttons">
         <button className="cancel-btn" onClick={() => navigate("/users")}>Batalkan</button>

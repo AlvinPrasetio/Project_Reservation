@@ -1,4 +1,3 @@
-// reservasiRoutes.js
 const express = require('express');
 const pool = require('../db');
 const { authenticate, authorizeAdmin } = require('../middleware/authMiddleware');
@@ -8,31 +7,24 @@ const router = express.Router();
 // ✅ GET Semua Reservasi
 router.get("/", authenticate, async (req, res) => {
   try {
-    let query = "SELECT * FROM reservasi";
+    let query = `
+      SELECT reservasi.*, layanan.nama_layanan, layanan.harga, layanan.deskripsi AS layanan_deskripsi
+      FROM reservasi
+      JOIN layanan ON reservasi.layanan_id = layanan.id
+    `;
     let params = [];
 
     // Jika bukan admin, filter hanya reservasi milik user tersebut
     if (req.user && req.user.role !== "admin") {
-      if (!req.user.email && req.user.id) {
-        const [userResult] = await pool.query(
-          "SELECT email FROM users WHERE id = ?",
-          [req.user.id]
-        );
-
-        if (userResult && userResult.length > 0) {
-          req.user.email = userResult[0].email;
-        }
+      if (!req.user.id) {
+        return res.status(400).json({ message: "User ID tidak ditemukan dalam token" });
       }
 
-      const userEmail = req.user.email;
-
-      if (userEmail) {
-        query += " WHERE email = ?";
-        params.push(userEmail);
-      }
+      query += " WHERE reservasi.user_id = ?";
+      params.push(req.user.id);
     }
 
-    query += " ORDER BY tanggal_reservasi DESC";
+    query += " ORDER BY reservasi.tanggal_reservasi DESC";
 
     const [rows] = await pool.query(query, params);
 
@@ -43,22 +35,33 @@ router.get("/", authenticate, async (req, res) => {
   }
 });
 
+// ✅ GET Semua Layanan
+router.get("/layanan", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT nama_layanan, deskripsi, harga, durasi FROM layanan");
+    res.json(rows);
+  } catch (error) {
+    console.error("Gagal mengambil data layanan:", error);
+    res.status(500).json({ message: "Gagal mengambil data layanan", error: error.message });
+  }
+});
+
 // ✅ POST Tambah Reservasi Baru (menangkap jam)
 router.post("/", authenticate, async (req, res) => {
   try {
-    const { nama, email, no_hp, tanggal_reservasi, jam, layanan, status = "pending" } = req.body;
+    const { nama, no_hp, tanggal_reservasi, jam, layanan_id, status = "pending" } = req.body;
     const user_id = req.user.id;
 
     // Validasi input termasuk jam
-    if (!nama || !email || !no_hp || !tanggal_reservasi || !jam || !layanan) {
+    if (!nama || !no_hp || !tanggal_reservasi || !jam || !layanan_id) {
       return res.status(400).json({ message: "Semua field harus diisi" });
     }
 
     const created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     const [result] = await pool.query(
-      "INSERT INTO reservasi (nama, email, no_hp, tanggal_reservasi, jam, layanan, status, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [nama, email, no_hp, tanggal_reservasi, jam, layanan, status, created_at, user_id]
+      "INSERT INTO reservasi (nama, no_hp, tanggal_reservasi, jam, layanan_id, status, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [nama, no_hp, tanggal_reservasi, jam, layanan_id, status, created_at, user_id]
     );
 
     res.status(201).json({
@@ -67,11 +70,10 @@ router.post("/", authenticate, async (req, res) => {
       data: {
         id: result.insertId,
         nama,
-        email,
         no_hp,
         tanggal_reservasi,
         jam,
-        layanan,
+        layanan_id,
         status,
         created_at,
         user_id
@@ -143,13 +145,21 @@ router.get("/create-test-data", async (req, res) => {
 
     const user = users[0];
 
-    const layanan = [
-      "Facial Treatment", "Hair Styling", "Nail Care", "Facial",
-      "Creambath", "Hair Mask", "Hair Spa", "Body Massage",
-      "Body Scrub", "Rebonding", "Make Up"
+    const layananList = [
+      { id: 1, nama_layanan: "Facial Treatment" },
+      { id: 2, nama_layanan: "Hair Styling" },
+      { id: 3, nama_layanan: "Nail Care" },
+      { id: 4, nama_layanan: "Facial" },
+      { id: 5, nama_layanan: "Creambath" },
+      { id: 6, nama_layanan: "Hair Mask" },
+      { id: 7, nama_layanan: "Hair Spa" },
+      { id: 8, nama_layanan: "Body Massage" },
+      { id: 9, nama_layanan: "Body Scrub" },
+      { id: 10, nama_layanan: "Rebonding" },
+      { id: 11, nama_layanan: "Make Up" }
     ];
 
-    const status = ["pending", "confirmed", "canceled"];
+    const statusList = ["pending", "confirmed", "canceled"];
     const jamOptions = [
       "08:00:00", "09:00:00", "10:00:00", "11:00:00",
       "12:00:00", "13:00:00", "14:00:00", "15:00:00",
@@ -167,28 +177,28 @@ router.get("/create-test-data", async (req, res) => {
     const testData = [];
 
     for (let i = 0; i < 5; i++) {
-      const randomLayanan = layanan[Math.floor(Math.random() * layanan.length)];
-      const randomStatus = status[Math.floor(Math.random() * status.length)];
+      const randomLayanan = layananList[Math.floor(Math.random() * layananList.length)];
+      const randomStatus = statusList[Math.floor(Math.random() * statusList.length)];
       const randomDate = getRandomDate();
       const randomJam = jamOptions[Math.floor(Math.random() * jamOptions.length)];
       const randomPhone = `08${Math.floor(Math.random() * 1000000000)}`.substring(0, 12);
       const created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
       const [result] = await pool.query(
-        "INSERT INTO reservasi (nama, email, no_hp, tanggal_reservasi, jam, layanan, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [user.nama, email, randomPhone, randomDate, randomJam, randomLayanan, randomStatus, created_at]
+        "INSERT INTO reservasi (nama, no_hp, tanggal_reservasi, jam, layanan_id, status, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [user.nama, randomPhone, randomDate, randomJam, randomLayanan.id, randomStatus, created_at, user.id]
       );
 
       testData.push({
         id: result.insertId,
         nama: user.nama,
-        email,
         no_hp: randomPhone,
         tanggal_reservasi: randomDate,
         jam: randomJam,
-        layanan: randomLayanan,
+        layanan_id: randomLayanan.id,
         status: randomStatus,
-        created_at
+        created_at,
+        user_id: user.id
       });
     }
 

@@ -2,14 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
+const reservasiRoutes = require('./routes/reservasiRoutes');
+const layananRoutes = require('./routes/layananRoutes');
 const pool = require('./db');
+const path = require('path');
 const { authenticate, authorizeAdmin } = require('./middleware/authMiddleware');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*', // Memperbolehkan semua origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Pasang pool ke request
@@ -18,12 +25,28 @@ app.use((req, res, next) => {
   next();
 });
 
+// Route statis untuk file upload
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes auth
 app.use('/auth', authRoutes);
 
-// Routes reservasi (full)
-const reservasiRoutes = require('./routes/reservasiRoutes');
+// Routes reservasi
 app.use('/reservasi', reservasiRoutes);
+
+// Routes layanan
+app.use('/layanan', layananRoutes);
+
+// Mount layanan route separately without prefix
+app.get('/layanan', async (req, res) => {
+  try {
+    const [rows] = await req.db.query("SELECT nama_layanan, deskripsi, harga, durasi FROM layanan");
+    res.json(rows);
+  } catch (error) {
+    console.error("Gagal mengambil data layanan:", error);
+    res.status(500).json({ message: "Gagal mengambil data layanan", error: error.message });
+  }
+});
 
 // ✅ Endpoint detail reservasi by ID
 app.get('/reservasi/:id', async (req, res) => {

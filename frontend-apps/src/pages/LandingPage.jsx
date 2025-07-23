@@ -11,113 +11,61 @@ import bodyscrub from "../assets/OurService/BodyScrub.jpg";
 import rebounding from "../assets/OurService/Rebounding.jpg";
 import makeup from "../assets/OurService/MakeUp.jpg";
 
+const imageMap = {
+  "Facial": facial,
+  "Creambath": creambath,
+  "Hair Mask": hairmask,
+  "Hair Spa": hairspa,
+  "Body Scrub": bodyscrub,
+  "Rebonding": rebounding,
+  "Smoothing": smoothing,
+  "Make Up": makeup,
+  "Hair Coloring": haircolor,
+};
+
 const LandingPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // Cek status login
+  const [layananData, setLayananData] = useState([]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+    setIsLoggedIn(!!token);
   }, []);
-  
-  const testimonials = [
-    {
-      nama: "Ayu",
-      pesan: "Kulit saya lebih glowing setelah perawatan di sini!"
-    },
-    {
-      nama: "Sinta",
-      pesan: "Pelayanannya ramah dan hasilnya memuaskan."
-    },
-    {
-      nama: "Aprilla Utami",
-      pesan: "Awal ke klinik karena wajah kusam, sekarang lebih cerah dan glowing natural setelah rutin creambath & facial."
-    },
-    {
-      nama: "Fitri Sulistiyawati",
-      pesan: "Jerawat parah hilang setelah rutin perawatan mesotherapy & honey bee venom selama 2 bulan."
-    },
-    {
-      nama: "Tia Sthefani A",
-      pesan: "Bekas jerawat cepat hilang, dan kulit jadi bersih hanya dalam 3 hari perawatan green tea extract."
-    },
-    {
-      nama: "Desy",
-      pesan: "Saya jatuh cinta sama scrubbing dan serum, jerawat berkurang dalam 2 bulan rutin facial."
-    },
-    {
-      nama: "Widia Sri Ardias",
-      pesan: "Setelah 5 bulan, kulit saya cerah alami, bebas bruntusan dan pori mengecil."
-    },
-    {
-      nama: "Linda Permata",
-      pesan: "Rambut saya jadi lembut dan tidak rontok setelah hair spa di sini."
-    },
-    {
-      nama: "Theodora Anindita",
-      pesan: "Komedo di hidung hilang, dan produk tea-tree sangat cocok untuk kulit berminyak saya."
-    }
-  ];
 
-  const services = [
-     {
-       title: "Facial",
-       price: "Rp125.000",
-       desc: "Perawatan wajah lengkap dengan pembersihan, eksfoliasi, masker (gold atau biasa), serta pijat relaksasi.",
-       img: facial
-     },
-     {
-       title: "Creambath",
-       price: "Rp85.000",
-       desc: "Perawatan rambut dengan krim khusus, melembutkan & memulihkan rambut. Harga tergantung panjang atau pendek rambut.",
-       img: creambath
-     },
-     {
-       title: "Hair Mask",
-       price: "Rp100.000",
-       desc: "Masker rambut nutrisi mendalam untuk menguatkan & melembapkan. Harga menyesuaikan panjang rambut.",
-       img: hairmask
-     },
-     {
-       title: "Hair Spa",
-       price: "Rp100.000",
-       desc: "Perawatan intensif rambut & kulit kepala: pijat, serum, dan masker khusus untuk kelembapan maksimal. Harga tergantung panjang rambut.",
-       img: hairspa
-     },
-     {
-       title: "Body Scrub",
-       price: "Rp100.000",
-       desc: "Eksfoliasi tubuh dengan scrub alami untuk mengangkat sel kulit mati & menjadikan kulit lebih halus dan cerah.",
-       img: bodyscrub
-     },
-     {
-       title: "Rebonding",
-       price: "Rp350.000",
-       desc: "Perawatan pelurusan rambut semi-permanen dengan hasil halus, rapi, & tahan lama. Harga menyesuaikan panjang rambut.",
-       img: rebounding
-     },
-     {
-       title: "Smoothing",
-       price: "Rp320.000",
-       desc: "Perawatan pelurusan rambut untuk hasil lebih natural & lembut. Harga tergantung panjang rambut.",
-       img: smoothing
-     },
-     {
-       title: "Make Up",
-       price: "Rp150.000",
-       desc: "Layanan make-up profesional untuk berbagai acara. Bisa di tempat atau dipanggil ke lokasi, harga per kepala.",
-       img: makeup
-     },
-     {
-       title: "Hair Coloring",
-       price: "Rp200.000",
-       desc: "Pewarnaan rambut profesional dengan pilihan warna, harga tergantung panjang atau pendek rambut.",
-       img: haircolor
-     }
+  useEffect(() => {
+    const fetchLayanan = async () => {
+      try {
+        const response = await fetch("/layanan");
+        if (!response.ok) throw new Error("Failed to fetch layanan data");
+        const data = await response.json();
+        setLayananData(data);
+      } catch (error) {
+        console.error("Error fetching layanan data:", error);
+      }
+    };
+    fetchLayanan();
+  }, []);
+
+  const formatPrice = (price) => {
+    if (typeof price === "number") {
+      return price.toLocaleString("id-ID", {
+        style: "currency",
+        currency: "IDR"
+      });
+    }
+    return price;
+  };
+
+  const testimonials = [
+    { nama: "Ayu", pesan: "Kulit saya lebih glowing setelah perawatan di sini!" },
+    { nama: "Sinta", pesan: "Pelayanannya ramah dan hasilnya memuaskan." },
+    { nama: "Aprilla Utami", pesan: "Awal ke klinik karena wajah kusam, sekarang lebih cerah dan glowing natural setelah rutin creambath & facial." },
+    { nama: "Fitri Sulistiyawati", pesan: "Jerawat parah hilang setelah rutin perawatan mesotherapy & honey bee venom selama 2 bulan." },
+    { nama: "Tia Sthefani A", pesan: "Bekas jerawat cepat hilang, dan kulit jadi bersih hanya dalam 3 hari perawatan green tea extract." },
+    { nama: "Desy", pesan: "Saya jatuh cinta sama scrubbing dan serum, jerawat berkurang dalam 2 bulan rutin facial." },
+    { nama: "Widia Sri Ardias", pesan: "Setelah 5 bulan, kulit saya cerah alami, bebas bruntusan dan pori mengecil." },
+    { nama: "Linda Permata", pesan: "Rambut saya jadi lembut dan tidak rontok setelah hair spa di sini." },
+    { nama: "Theodora Anindita", pesan: "Komedo di hidung hilang, dan produk tea-tree sangat cocok untuk kulit berminyak saya." }
   ];
 
   const faqs = [
@@ -157,15 +105,9 @@ const LandingPage = () => {
           <div className="hero-content">
             <h1>Layanan Kecantikan Profesional</h1>
             <p>Untuk kulit sehat, cerah, dan terawat</p>
-            {isLoggedIn ? (
-              <Link to="/users">
-                <button className="btn-primary">Reservasi Sekarang</button>
-              </Link>
-            ) : (
-              <Link to="/login">
-                <button className="btn-primary">Reservasi Sekarang</button>
-              </Link>
-            )}
+            <Link to={isLoggedIn ? "/users" : "/login"}>
+              <button className="btn-primary">Reservasi Sekarang</button>
+            </Link>
           </div>
         </section>
 
@@ -173,15 +115,18 @@ const LandingPage = () => {
         <section className="services-section">
           <h2 className="section-title">Layanan Kami</h2>
           <div className="service-cards">
-            {services.slice(0, 6).map((service, index) => (
+            {layananData.slice(0, 6).map((service, index) => (
               <div className="service-card" key={index}>
                 <div className="service-image">
-                  <img src={service.img} alt={service.title} />
+                  <img
+                    src={imageMap[service.nama_layanan] || haircolor}
+                    alt={service.nama_layanan}
+                  />
                 </div>
                 <div className="service-info">
-                  <h3 className="service-title">{service.title}</h3>
-                  <p className="service-price">{service.price}</p>
-                  <p className="service-desc">{service.desc}</p>
+                  <h3 className="service-title">{service.nama_layanan}</h3>
+                  <p className="price-label">{formatPrice(service.harga)}</p>
+                  <p className="service-desc">{service.deskripsi}</p>
                 </div>
               </div>
             ))}
@@ -193,7 +138,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Testimonial Section */}
+        {/* Testimonials Section */}
         <section className="testimonials-section">
           <h2 className="section-title">Testimoni Pelanggan</h2>
           <div className="testimonial-cards">
@@ -206,12 +151,13 @@ const LandingPage = () => {
           </div>
         </section>
 
+        {/* FAQ Section */}
         <section className="faq-section">
           <h2 className="section-title">Pertanyaan Seputar Reservasi</h2>
           <div className="faq-list">
             {faqs.map((faq, index) => (
               <div key={index} className="faq-item">
-                <div 
+                <div
                   className="faq-question"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 >

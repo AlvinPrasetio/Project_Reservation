@@ -305,9 +305,9 @@ main {
   margin-bottom: 0.5rem;
 }
 
-.service-price {
+.price-label {
   font-weight: 700;
-  color: #ff6b6b;
+  color: #333;
   margin-bottom: 1rem;
 }
 

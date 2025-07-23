@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { FiRefreshCw, FiCheckCircle, FiClock, FiXCircle, FiUser, FiLogOut, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import "../styles/Users.css";
@@ -6,6 +6,8 @@ import "../styles/Users.css";
 const Users = () => {
   const [reservations, setReservations] = useState([]);
   const [layanan, setLayanan] = useState("");
+  const [layananOptions, setLayananOptions] = useState([]);
+  const [layananIdMap, setLayananIdMap] = useState({});
   const [tanggal, setTanggal] = useState("");
   const [noHp, setNoHp] = useState("");
   const [jam, setJam] = useState("");
@@ -26,17 +28,17 @@ const Users = () => {
   const userEmail = localStorage.getItem("userEmail") || "";
 
   // Menggunakan useMemo untuk mencegah rerender berlebih
-  const layananOptions = useMemo(() => [
-  "Facial",
-  "Creambath",
-  "Hair Mask",
-  "Hair Spa",
-  "Body Scrub",
-  "Rebonding",
-  "Smoothing",
-  "Make Up",
-  "Hair Coloring",
-  ], []);
+  // const layananOptionsMemo = useMemo(() => [
+  // "Facial",
+  // "Creambath",
+  // "Hair Mask",
+  // "Hair Spa",
+  // "Body Scrub",
+  // "Rebonding",
+  // "Smoothing",
+  // "Make Up",
+  // "Hair Coloring",
+  // ], []);
 
 
   const jamOptions = [
@@ -55,6 +57,29 @@ const Users = () => {
   "20:00"
 ];
 
+  // Fetch layanan from API
+  const fetchLayanan = useCallback(() => {
+    fetch("http://localhost:5000/layanan")
+      .then(res => res.json())
+      .then(data => {
+        // Map layanan names and IDs
+        const options = data.map(item => item.nama_layanan);
+        const idMap = {};
+        data.forEach(item => {
+          idMap[item.nama_layanan] = item.id;
+        });
+        setLayananOptions(options);
+        setLayananIdMap(idMap);
+      })
+      .catch(err => {
+        console.error("Error fetching layanan:", err);
+      });
+  }, []);
+
+  // Effect untuk mengambil data layanan saat komponen dimuat
+  useEffect(() => {
+    fetchLayanan();
+  }, [fetchLayanan]);
 
   // Effect untuk mengisi layanan dari localStorage jika ada
   useEffect(() => {
@@ -83,13 +108,20 @@ const Users = () => {
     }
 
     setIsLoading(true);
-    
+
     fetch("http://localhost:5000/reservasi", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
-        setReservations(data);
+        // Map data to include layanan details
+        const mappedData = data.map(item => ({
+          ...item,
+          nama_layanan: item.nama_layanan || item.layanan,
+          harga: item.harga || 0,
+          deskripsi_layanan: item.layanan_deskripsi || ""
+        }));
+        setReservations(mappedData);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -159,12 +191,15 @@ const Users = () => {
 
     setIsLoading(true);
     const token = localStorage.getItem("token");
+    // Get layanan_id from the mapping
+    const layananId = layananIdMap[layanan];
+
     const reservasiData = {
       nama: userName,
       email: userEmail,
       no_hp: noHp,
       tanggal_reservasi: tanggal,
-      layanan: layanan,
+      layanan_id: layananId,
       jam: jam,
       status: "pending",
     };
@@ -306,6 +341,7 @@ const Users = () => {
     }
   };
 
+  // Form reservasi dalam JSX
   return (
     <>
       {/* Navbar/Header yang mirip dengan Navbar.jsx */}
@@ -523,7 +559,7 @@ const Users = () => {
                               }}
                               style={{ cursor: "pointer" }}
                             >
-                              <td>{res.layanan}</td>
+                              <td>{res.nama_layanan}</td>
                               <td>{new Date(res.tanggal_reservasi).toLocaleDateString('id-ID', {
                                 year: 'numeric', 
                                 month: 'long', 

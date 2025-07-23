@@ -14,6 +14,7 @@ import Navbar from './pages/Navbar.jsx';
 import Footer from "./pages/Footer.jsx";
 import Payment from "./pages/Payment.jsx";
 import DetailReservasi from "./pages/DetailReservation.jsx";
+import ResetPassword from "./pages/ResetPassword"; // Import komponen ResetPassword baru
 import './App.css';
 
 // Komponen untuk mengatur lebar scrollbar CSS variable
@@ -55,11 +56,11 @@ function ScrollbarDetector() {
 // Komponen pembungkus untuk bisa pakai useLocation
 function AppWrapper() {
   const location = useLocation();
-  const hideNavbarOnPaths = ['/admin']; // daftar halaman yang TIDAK butuh navbar
-  const hideFooterOnPaths = ['/users', '/admin', '/login', '/register'];
+  const hideNavbarOnPaths = ['/admin', '/admin/layanan']; // daftar halaman yang TIDAK butuh navbar
+  const hideFooterOnPaths = ['/users', '/admin', '/admin/layanan', '/login', '/register'];
   
   const hideFooter = hideFooterOnPaths.includes(location.pathname);
-  const hideNavbar = hideNavbarOnPaths.includes(location.pathname);
+  const hideNavbar = hideNavbarOnPaths.some(path => location.pathname.startsWith(path));
 
   return (
     <div className="app-container">
@@ -78,6 +79,7 @@ function AppWrapper() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/detail-reservasi/:id" element={<DetailReservasi />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} /> {/* Tambahkan rute ResetPassword */}
         </Routes>
       </main>
       {!hideFooter && <Footer />}

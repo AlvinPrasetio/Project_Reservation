@@ -115,7 +115,8 @@ body {
 
 .password-input-container input {
   flex-grow: 1;
-  padding-right: 40px; /* Space for the icon */
+  padding-right: 40px; /* Space for the toggle button */
+  padding-left: 40px; /* Space for the icon */
 }
 
 .password-toggle-btn {
@@ -181,6 +182,109 @@ body {
   text-decoration: underline;
 }
 
+/* Success message */
+.auth-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Forgot Password Link */
+.forgot-password {
+  text-align: right;
+  margin-top: 5px;
+}
+
+.forgot-password-link {
+  background: none;
+  border: none;
+  color: #5564eb;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.forgot-password-link:hover {
+  color: #3040c0;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-body {
+  padding: 0 10px;
+}
+
+.modal-body p {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+/* Input with icon */
+.input-with-icon {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  z-index: 1;
+}
+
+.input-with-icon input {
+  padding-left: 40px;
+}
+
 /* Media queries untuk responsivitas */
 @media (max-width: 768px) {
   .auth-card {
@@ -214,5 +318,41 @@ body {
   .auth-button {
     padding: 0.8rem;
   }
+}
+
+@media (max-width: 768px) {
+  .modal-container {
+    width: 95%;
+    padding: 15px;
+  }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(85, 100, 235, 0.3);
+  border-radius: 50%;
+  border-top-color: #5564eb;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Auth message */
+.auth-message {
+  text-align: center;
+  margin: 20px 0;
+  line-height: 1.6;
+  color: #555;
 }
 

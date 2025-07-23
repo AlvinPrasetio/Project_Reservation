@@ -51,3 +51,16 @@
 .service-detail button:hover {
   background-color: #ff4757;
 }
+
+/* .price-label {
+  display: block;
+  background-color: #ffe6ea;
+  color: #ff4757;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.5rem auto 1rem;
+  width: fit-content;
+  text-align: center;
+} */

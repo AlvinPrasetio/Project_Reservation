@@ -1,19 +1,71 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Admin.css";
+// Import image map dari OurServices
+import haircolor from "../assets/OurService/HairColoring.jpg";
+import smoothing from "../assets/OurService/Smooting.jpeg";
+import facial from "../assets/OurService/Facial.jpg";
+import creambath from "../assets/OurService/Creambath.jpg";
+import hairmask from "../assets/OurService/HairMusk.jpg";
+import hairspa from "../assets/OurService/HairSpa.jpg";
+import bodyscrub from "../assets/OurService/BodyScrub.jpg";
+import rebounding from "../assets/OurService/Rebounding.jpg";
+import makeup from "../assets/OurService/MakeUp.jpg";
+
+const imageMap = {
+  "Facial": facial,
+  "Creambath": creambath,
+  "Hair Mask": hairmask,
+  "Hair Spa": hairspa,
+  "Body Scrub": bodyscrub,
+  "Rebonding": rebounding,
+  "Smoothing": smoothing,
+  "Make Up": makeup,
+  "Hair Coloring": haircolor,
+};
+
+const formatPrice = (price) => {
+  if (typeof price === "number") {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  }
+  return price;
+};
 
 const Admin = () => {
   const [reservations, setReservations] = useState([]);
   const [users, setUsers] = useState([]);
+  const [layanan, setLayanan] = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [token, setToken] = useState("");
+  // State untuk modal layanan
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentLayanan, setCurrentLayanan] = useState({
+    id: null,
+    nama_layanan: "",
+    deskripsi: "",
+    harga: "",
+    durasi: "",
+    gambar_url: "" // Tambahkan gambar_url
+  });
+  
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  
   const [statsData, setStatsData] = useState({
     totalReservations: 0,
     pendingReservations: 0,
     confirmedReservations: 0,
     canceledReservations: 0,
     totalUsers: 0,
+    totalLayanan: 0,
     popularServices: []
   });
   const navigate = useNavigate();
@@ -33,6 +85,8 @@ const Admin = () => {
       navigate("/login");
       return;
     }
+    
+    setToken(token);
 
     // Ambil data reservasi
     fetch("http://localhost:5000/reservasi", {
@@ -86,7 +140,210 @@ const Admin = () => {
         }));
       })
       .catch(err => console.error("Gagal mengambil data user:", err));
+      
+    // Ambil data layanan
+    fetch("http://localhost:5000/layanan", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        setLayanan(data);
+        setStatsData(prev => ({
+          ...prev,
+          totalLayanan: data.length
+        }));
+      })
+      .catch(err => console.error("Gagal mengambil data layanan:", err));
   }, [navigate]);
+  
+  // Fungsi untuk mengelola layanan
+  const fetchLayanan = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/layanan", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Gagal mengambil data layanan");
+      }
+      
+      const data = await response.json();
+      setLayanan(data);
+      setStatsData(prev => ({
+        ...prev,
+        totalLayanan: data.length
+      }));
+    } catch (error) {
+      console.error("Error fetching layanan:", error);
+    }
+  };
+  
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    // Jika field harga, pastikan hanya angka yang diinput
+    if (name === "harga") {
+      const numericValue = value.replace(/\D/g, "");
+      setCurrentLayanan({ ...currentLayanan, [name]: numericValue });
+    } else {
+      setCurrentLayanan({ ...currentLayanan, [name]: value });
+    }
+  };
+  
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const openAddModal = () => {
+    setCurrentLayanan({
+      id: null,
+      nama_layanan: "",
+      deskripsi: "",
+      harga: "",
+      durasi: "",
+      gambar_url: ""
+    });
+    setImagePreview(null);
+    setImageFile(null);
+    setIsAddModalOpen(true);
+  };
+  
+  const openEditModal = (layanan) => {
+    setCurrentLayanan(layanan);
+    
+    // Jika layanan memiliki gambar_url dari database, gunakan itu
+    if (layanan.gambar_url) {
+      setImagePreview(`http://localhost:5000${layanan.gambar_url}`);
+    } else {
+      // Fallback ke gambar dari imageMap
+      setImagePreview(imageMap[layanan.nama_layanan] || "");
+    }
+    
+    setImageFile(null);
+    setIsEditModalOpen(true);
+  };
+  
+  const openDeleteModal = (layanan) => {
+    setCurrentLayanan(layanan);
+    setIsDeleteModalOpen(true);
+  };
+  
+  const closeModals = () => {
+    setIsAddModalOpen(false);
+    setIsEditModalOpen(false);
+    setIsDeleteModalOpen(false);
+  };
+  
+  const handleAddLayanan = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Create form data to handle file upload
+      const formData = new FormData();
+      formData.append('nama_layanan', currentLayanan.nama_layanan);
+      formData.append('deskripsi', currentLayanan.deskripsi);
+      formData.append('harga', parseFloat(currentLayanan.harga));
+      formData.append('durasi', currentLayanan.durasi);
+      
+      if (imageFile) {
+        formData.append('gambar', imageFile);
+      }
+      
+      const response = await fetch("http://localhost:5000/layanan", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Note: Don't include Content-Type when sending FormData
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Gagal menambahkan layanan");
+      }
+      
+      // Refresh layanan dan tutup modal
+      fetchLayanan();
+      closeModals();
+      
+      alert("Layanan berhasil ditambahkan!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  
+  const handleEditLayanan = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Create form data to handle file upload
+      const formData = new FormData();
+      formData.append('nama_layanan', currentLayanan.nama_layanan);
+      formData.append('deskripsi', currentLayanan.deskripsi);
+      formData.append('harga', parseFloat(currentLayanan.harga));
+      formData.append('durasi', currentLayanan.durasi);
+      
+      if (imageFile) {
+        formData.append('gambar', imageFile);
+      }
+      
+      const response = await fetch(`http://localhost:5000/layanan/${currentLayanan.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Note: Don't include Content-Type when sending FormData
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Gagal mengupdate layanan");
+      }
+      
+      // Refresh layanan dan tutup modal
+      fetchLayanan();
+      closeModals();
+      
+      alert("Layanan berhasil diperbarui!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  
+  const handleDeleteLayanan = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/layanan/${currentLayanan.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Gagal menghapus layanan");
+      }
+      
+      // Refresh layanan dan tutup modal
+      fetchLayanan();
+      closeModals();
+      
+      alert("Layanan berhasil dihapus!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   const updateStatus = (id, status) => {
     const token = localStorage.getItem("token");
@@ -199,10 +456,6 @@ const Admin = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const toggleProfileDropdown = () => {
-    setProfileDropdownOpen(!profileDropdownOpen);
-  };
-
   // Menentukan waktu berdasarkan jam
   const getGreeting = () => {
     const hours = new Date().getHours();
@@ -251,6 +504,12 @@ const Admin = () => {
           >
             <i className="fas fa-users"></i> <span>Pengguna</span>
           </button>
+          <button
+            className={activeTab === "layanan" ? "active" : ""} 
+            onClick={() => setActiveTab("layanan")}
+          >
+            <i className="fas fa-spa"></i> <span>Layanan</span>
+          </button>
         </nav>
         
         <div className="sidebar-footer">
@@ -277,28 +536,6 @@ const Admin = () => {
               <p className="date-today">{currentDate}</p>
               <p className="welcome-message">Selamat datang di dashboard admin. Kelola reservasi dan pengguna dengan mudah dari sini.</p>
             </div>
-            
-            <div className="header-actions">
-              <div className="profile-dropdown">
-                <div className="profile-avatar" onClick={toggleProfileDropdown}>
-                  <i className="fas fa-user-circle"></i>
-                </div>
-                {profileDropdownOpen && (
-                  <div className="profile-menu">
-                    <div className="profile-info">
-                      <p className="profile-name">{adminName}</p>
-                      <p className="profile-role">Administrator</p>
-                    </div>
-                    <div className="profile-menu-items">
-                      <button className="profile-menu-item" onClick={handleLogout}>
-                        <i className="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
           
           <div className="tab-header">
@@ -306,6 +543,7 @@ const Admin = () => {
               {activeTab === "dashboard" && "Dashboard Overview"}
               {activeTab === "reservasi" && "Manajemen Reservasi"}
               {activeTab === "users" && "Manajemen Pengguna"}
+              {activeTab === "layanan" && "Daftar Layanan"}
             </h2>
           </div>
         </div>
@@ -364,6 +602,16 @@ const Admin = () => {
                   <div className="stat-info">
                     <h3>Total Pengguna</h3>
                     <p className="stat-number">{statsData.totalUsers}</p>
+                  </div>
+                </div>
+                
+                <div className="stat-card secondary">
+                  <div className="stat-icon">
+                    <i className="fas fa-spa"></i>
+                  </div>
+                  <div className="stat-info">
+                    <h3>Total Layanan</h3>
+                    <p className="stat-number">{statsData.totalLayanan}</p>
                   </div>
                 </div>
               </div>
@@ -560,6 +808,240 @@ const Admin = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+        
+        {/* Tab Layanan */}
+        {activeTab === "layanan" && (
+          <div className="layanan-admin-container">
+            <div className="layanan-header">
+              <h3>Daftar Layanan Salon</h3>
+              <button className="btn-add" onClick={openAddModal}>
+                <i className="fas fa-plus"></i> Tambah Layanan Baru
+              </button>
+            </div>
+            
+            <div className="services-admin-grid">
+              {layanan.map((service) => (
+                <div key={service.id} className="service-admin-card">
+                  <div className="service-admin-image">
+                    <img 
+                      src={service.gambar_url ? `http://localhost:5000${service.gambar_url}` : imageMap[service.nama_layanan] || ""}
+                      alt={service.nama_layanan} 
+                      className="service-img"
+                      onError={(e) => {
+                        // Jika gambar gagal dimuat, gunakan fallback dari imageMap
+                        if (service.gambar_url) {
+                          e.target.src = imageMap[service.nama_layanan] || "";
+                        }
+                      }}
+                    />
+                    <div className="service-actions">
+                      <button className="service-action-btn edit" onClick={() => openEditModal(service)}>
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button className="service-action-btn delete" onClick={() => openDeleteModal(service)}>
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="service-admin-info">
+                    <h4>{service.nama_layanan}</h4>
+                    <p className="service-price">{formatPrice(service.harga)}</p>
+                    <p className="service-duration"><i className="far fa-clock"></i> {service.durasi || "60 menit"}</p>
+                    <p className="service-desc">{service.deskripsi}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Modal Tambah Layanan */}
+            {isAddModalOpen && (
+              <div className="modal">
+                <div className="modal-content">
+                  <h2>Tambah Layanan Baru</h2>
+                  <form onSubmit={handleAddLayanan}>
+                    <div className="form-group">
+                      <label>Nama Layanan:</label>
+                      <input
+                        type="text"
+                        name="nama_layanan"
+                        value={currentLayanan.nama_layanan}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="deskripsi">Deskripsi:</label>
+                      <textarea
+                        id="deskripsi"
+                        name="deskripsi"
+                        value={currentLayanan.deskripsi}
+                        onChange={handleInputChange}
+                        rows={4}
+                        placeholder="Masukkan deskripsi layanan..."
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Harga (Rp):</label>
+                      <input
+                        type="text"
+                        name="harga"
+                        value={currentLayanan.harga}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Contoh: 150000"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Durasi (menit):</label>
+                      <input
+                        type="text"
+                        name="durasi"
+                        value={currentLayanan.durasi}
+                        onChange={handleInputChange}
+                        placeholder="Contoh: 60 menit"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="gambar">Gambar Layanan:</label>
+                      <div className="custom-file-input">
+                        <div className="file-input-label">
+                          <i className="fas fa-cloud-upload-alt"></i>
+                          {imageFile ? imageFile.name : "Pilih file gambar..."}
+                        </div>
+                        <input
+                          type="file"
+                          id="gambar"
+                          name="gambar"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                      {imagePreview && (
+                        <div className="image-preview">
+                          <img src={imagePreview} alt="Preview" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="modal-buttons">
+                      <button type="submit" className="btn-save">
+                        <i className="fas fa-save"></i> Simpan
+                      </button>
+                      <button type="button" className="btn-cancel" onClick={closeModals}>
+                        <i className="fas fa-times"></i> Batal
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+            
+            {/* Modal Edit Layanan */}
+            {isEditModalOpen && (
+              <div className="modal">
+                <div className="modal-content">
+                  <h2>Edit Layanan</h2>
+                  <form onSubmit={handleEditLayanan}>
+                    <div className="form-group">
+                      <label>Nama Layanan:</label>
+                      <input
+                        type="text"
+                        name="nama_layanan"
+                        value={currentLayanan.nama_layanan}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="deskripsi-edit">Deskripsi:</label>
+                      <textarea
+                        id="deskripsi-edit"
+                        name="deskripsi"
+                        value={currentLayanan.deskripsi}
+                        onChange={handleInputChange}
+                        rows={4}
+                        placeholder="Masukkan deskripsi layanan..."
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Harga (Rp):</label>
+                      <input
+                        type="text"
+                        name="harga"
+                        value={currentLayanan.harga}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Contoh: 150000"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Durasi (menit):</label>
+                      <input
+                        type="text"
+                        name="durasi"
+                        value={currentLayanan.durasi}
+                        onChange={handleInputChange}
+                        placeholder="Contoh: 60 menit"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="gambar-edit">Gambar Layanan:</label>
+                      <div className="custom-file-input">
+                        <div className="file-input-label">
+                          <i className="fas fa-cloud-upload-alt"></i>
+                          {imageFile ? imageFile.name : "Pilih file gambar baru..."}
+                        </div>
+                        <input
+                          type="file"
+                          id="gambar-edit"
+                          name="gambar"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                      {imagePreview && (
+                        <div className="image-preview">
+                          <img src={imagePreview} alt="Preview" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="modal-buttons">
+                      <button type="submit" className="btn-save">
+                          <i className="fas fa-check"></i> Perbarui
+                      </button>
+                      <button type="button" className="btn-cancel" onClick={closeModals}>
+                        <i className="fas fa-times"></i> Batal
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+            
+            {/* Modal Hapus Layanan */}
+            {isDeleteModalOpen && (
+              <div className="modal">
+                <div className="modal-content">
+                  <h2>Hapus Layanan</h2>
+                  <div className="confirm-delete-content">
+                    <div className="confirm-icon">
+                      <i className="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <p>Apakah Anda yakin ingin menghapus layanan <strong>{currentLayanan.nama_layanan}</strong>?</p>
+                    <p className="warning-text">Tindakan ini tidak dapat dibatalkan!</p>
+                  </div>
+                  <div className="modal-buttons">
+                    <button className="btn-delete" onClick={handleDeleteLayanan}>
+                      <i className="fas fa-trash"></i> Hapus
+                    </button>
+                    <button className="btn-cancel" onClick={closeModals}>
+                      <i className="fas fa-times"></i> Batal
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

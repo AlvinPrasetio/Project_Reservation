@@ -1,4 +1,4 @@
-// import React from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/OurServices.css";
 import haircolor from "../assets/OurService/HairColoring.jpg";
@@ -11,82 +11,71 @@ import bodyscrub from "../assets/OurService/BodyScrub.jpg";
 import rebounding from "../assets/OurService/Rebounding.jpg";
 import makeup from "../assets/OurService/MakeUp.jpg";
 
-const serviceList = [
-  {
-    title: "Facial",
-    price: "Rp125.000",
-    desc: "Perawatan wajah lengkap dengan pembersihan, eksfoliasi, masker (gold atau biasa), serta pijat relaksasi.",
-    img: facial
-  },
-  {
-    title: "Creambath",
-    price: "Rp85.000",
-    desc: "Perawatan rambut dengan krim khusus, melembutkan & memulihkan rambut. Harga tergantung panjang atau pendek rambut.",
-    img: creambath
-  },
-  {
-    title: "Hair Mask",
-    price: "Rp100.000",
-    desc: "Masker rambut nutrisi mendalam untuk menguatkan & melembapkan. Harga menyesuaikan panjang rambut.",
-    img: hairmask
-  },
-  {
-    title: "Hair Spa",
-    price: "Rp100.000",
-    desc: "Perawatan intensif rambut & kulit kepala: pijat, serum, dan masker khusus untuk kelembapan maksimal. Harga tergantung panjang rambut.",
-    img: hairspa
-  },
-  {
-    title: "Body Scrub",
-    price: "Rp100.000",
-    desc: "Eksfoliasi tubuh dengan scrub alami untuk mengangkat sel kulit mati & menjadikan kulit lebih halus dan cerah.",
-    img: bodyscrub
-  },
-  {
-    title: "Rebonding",
-    price: "Rp350.000",
-    desc: "Perawatan pelurusan rambut semi-permanen dengan hasil halus, rapi, & tahan lama. Harga menyesuaikan panjang rambut.",
-    img: rebounding
-  },
-  {
-    title: "Smoothing",
-    price: "Rp320.000",
-    desc: "Perawatan pelurusan rambut untuk hasil lebih natural & lembut. Harga tergantung panjang rambut.",
-    img: smoothing
-  },
-  {
-    title: "Make Up",
-    price: "Rp150.000",
-    desc: "Layanan make-up profesional untuk berbagai acara. Bisa di tempat atau dipanggil ke lokasi, harga per kepala.",
-    img: makeup
-  },
-  {
-    title: "Hair Coloring",
-    price: "Rp200.000",
-    desc: "Pewarnaan rambut profesional dengan pilihan warna, harga tergantung panjang atau pendek rambut.",
-    img: haircolor
-  }
-];
+const imageMap = {
+  "Facial": facial,
+  "Creambath": creambath,
+  "Hair Mask": hairmask,
+  "Hair Spa": hairspa,
+  "Body Scrub": bodyscrub,
+  "Rebonding": rebounding,
+  "Smoothing": smoothing,
+  "Make Up": makeup,
+  "Hair Coloring": haircolor,
+};
 
+const formatPrice = (price) => {
+  if (typeof price === "number") {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  }
+  return price;
+};
 
 const OurServices = () => {
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/layanan")
+      .then((res) => res.json())
+      .then((data) => {
+        setServices(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching layanan data:", error);
+      });
+  }, []);
+
   return (
     <div className="page-container">
       <div className="services-container">
         <h1 className="title">Layanan Kami</h1>
         <div className="services-grid">
-          {serviceList.map((s, idx) => (
+          {services.map((service) => (
             <Link
-              key={idx}
-              to={`/services/${idx}`}  // pake index sebagai ID unik
+              key={service.id}
+              to={`/services/${service.id}`}
               className="service-card"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <img src={s.img} alt={s.title} className="service-img" />
+              <img
+                src={service.gambar_url ? `http://localhost:5000${service.gambar_url}` : imageMap[service.nama_layanan] || ""}
+                alt={service.nama_layanan}
+                className="service-img"
+                onError={(e) => {
+                  // Jika gambar gagal dimuat, gunakan fallback dari imageMap
+                  if (service.gambar_url) {
+                    e.target.src = imageMap[service.nama_layanan] || "";
+                  }
+                }}
+              />
               <div className="service-info">
-                <h4 className="service-title">{s.title}</h4>
-                <p className="service-price">{s.price}</p>
-                <p className="service-desc">{s.desc}</p>
+                <h4 className="service-title">{service.nama_layanan}</h4>
+                <p className="price-label">{formatPrice(service.harga)}</p>
+                <p className="service-desc">{service.deskripsi}</p>
               </div>
             </Link>
           ))}

@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const { authenticate, authorizeAdmin } = require('../middleware/authMiddleware');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const router = express.Router();
 
@@ -218,6 +220,138 @@ router.delete('/users/:id', authenticate, authorizeAdmin, async (req, res) => {
     res.json({ message: 'User berhasil dihapus' });
   } catch (error) {
     console.error('Gagal menghapus user:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+// Lupa Password - kirim email
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: 'Email harus diisi' });
+    }
+    
+    // Cek apakah email terdaftar
+    const [user] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    
+    if (user.length === 0) {
+      return res.status(404).json({ message: 'Email tidak terdaftar' });
+    }
+    
+    // Generate token reset password
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    const resetTokenExpiry = new Date();
+    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1); // Token berlaku 1 jam
+    
+    // Simpan token ke database
+    await pool.query(
+      'UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?',
+      [resetToken, resetTokenExpiry, email]
+    );
+    
+    // Konfigurasi transporter email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'liaperwatankulit@gmail.com', // gunakan variabel lingkungan
+        pass: process.env.EMAIL_PASS || 'zpvkpdpdujogdvus'  // gunakan variabel lingkungan
+      }
+    });
+    
+    // URL reset password di frontend
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+    
+    // Template email
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'liaperwatankulit@gmail.com',
+      to: email,
+      subject: 'Reset Password - Lia Perawatan Kulit',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #5564eb;">Reset Password</h2>
+          <p>Anda menerima email ini karena Anda (atau seseorang) telah meminta reset password untuk akun Anda di Lia Perawatan Kulit.</p>
+          <p>Silakan klik tombol di bawah untuk mengatur ulang password Anda:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #5564eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Password</a>
+          </div>
+          <p>Jika Anda tidak meminta reset password, abaikan email ini dan password Anda tidak akan berubah.</p>
+          <p>Link ini akan kadaluarsa dalam 1 jam.</p>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #eaeaea;" />
+          <p style="color: #666; font-size: 12px;">© ${new Date().getFullYear()} Lia Perawatan Kulit. All rights reserved.</p>
+        </div>
+      `
+    };
+    
+    // Kirim email
+    await transporter.sendMail(mailOptions);
+    
+    res.json({ message: 'Email reset password berhasil dikirim' });
+    
+  } catch (error) {
+    console.error('Gagal mengirim email reset password:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+// Reset Password dengan token
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    
+    if (!password) {
+      return res.status(400).json({ message: 'Password harus diisi' });
+    }
+    
+    // Cek apakah token valid dan belum kadaluarsa
+    const [users] = await pool.query(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
+      [token]
+    );
+    
+    if (users.length === 0) {
+      return res.status(400).json({ message: 'Token tidak valid atau sudah kadaluarsa' });
+    }
+    
+    // Hash password baru
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Update password dan hapus token
+    await pool.query(
+      'UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = ?',
+      [hashedPassword, token]
+    );
+    
+    res.json({ message: 'Password berhasil diubah' });
+    
+  } catch (error) {
+    console.error('Gagal reset password:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+});
+
+// Verifikasi token reset password
+router.get('/verify-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    // Cek apakah token valid dan belum kadaluarsa
+    const [users] = await pool.query(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
+      [token]
+    );
+    
+    if (users.length === 0) {
+      return res.status(400).json({ message: 'Token tidak valid atau sudah kadaluarsa' });
+    }
+    
+    res.json({ message: 'Token valid', valid: true });
+    
+  } catch (error) {
+    console.error('Gagal verifikasi token:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });

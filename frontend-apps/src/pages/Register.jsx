@@ -1,7 +1,7 @@
 // Register.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiMail, FiLock, FiUser } from 'react-icons/fi';
 import '../styles/Auth.css';
 
 const Register = () => {
@@ -77,33 +77,40 @@ const Register = () => {
           <form className="auth-form" onSubmit={handleRegister}>
             <div className="form-group">
               <label htmlFor="nama">Nama Lengkap</label>
-              <input
-                id="nama"
-                type="text"
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                required
-                disabled={loading}
-                placeholder="Masukkan nama lengkap"
-              />
+              <div className="input-with-icon">
+                <FiUser className="input-icon" />
+                <input
+                  id="nama"
+                  type="text"
+                  value={nama}
+                  onChange={(e) => setNama(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Masukkan nama lengkap"
+                />
+              </div>
             </div>
 
             <div className="form-group">
               <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-                placeholder="Masukkan email"
-              />
+              <div className="input-with-icon">
+                <FiMail className="input-icon" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Masukkan email"
+                />
+              </div>
             </div>
 
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <div className="password-input-container">
+                <FiLock className="input-icon" />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -126,6 +133,7 @@ const Register = () => {
             <div className="form-group">
               <label htmlFor="confirmPassword">Konfirmasi Password</label>
               <div className="password-input-container">
+                <FiLock className="input-icon" />
                 <input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
