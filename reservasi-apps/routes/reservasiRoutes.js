@@ -22,7 +22,7 @@ const uploadMiddleware = multer({ storage });
 router.get("/", authenticate, async (req, res) => {
   try {
     let query = `
-      SELECT reservasi.*, layanan.nama_layanan, layanan.harga, layanan.deskripsi AS layanan_deskripsi
+      SELECT reservasi.*, reservasi.bukti_transfer, layanan.nama_layanan, layanan.harga, layanan.deskripsi AS layanan_deskripsi
       FROM reservasi
       JOIN layanan ON reservasi.layanan_id = layanan.id
     `;

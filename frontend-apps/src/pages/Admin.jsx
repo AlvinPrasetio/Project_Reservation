@@ -55,10 +55,14 @@ const Admin = () => {
     durasi: "",
     gambar_url: "" // Tambahkan gambar_url
   });
-  
+
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  
+
+  // New state for proof of transfer modal
+  const [isProofModalOpen, setIsProofModalOpen] = useState(false);
+  const [selectedProofImage, setSelectedProofImage] = useState(null);
+
   const [statsData, setStatsData] = useState({
     totalReservations: 0,
     pendingReservations: 0,
@@ -688,72 +692,119 @@ const Admin = () => {
         )}
         
         {/* Tabel Reservasi */}
-        {activeTab === "reservasi" && (
+            {activeTab === "reservasi" && (
           <div className="data-card">
             <div className="card-header">
               <h2>Daftar Reservasi</h2>
             </div>
             <div className="table-responsive">
               <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Nama</th>
-                    <th>No HP</th>
-                    <th>Tanggal Reservasi</th>
-                    <th>Waktu Reservasi</th>
-                    <th>Layanan</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reservations.length > 0 ? (
-                    reservations.map(res => (
-                  <tr key={res.id}>
-                    <td>{res.nama}</td>
-                    <td>{res.no_hp}</td>
-                    <td>{formatReservationDate(res.tanggal_reservasi)}</td>
-                    <td>{formatReservationTime(res.jam)}</td>
-                    <td>{res.nama_layanan}</td>
-                    <td>
-                      <span className={`status-badge ${res.status || "none"}`}>
-                        {res.status === "pending" && "Menunggu"}
-                        {res.status === "confirmed" && "Dikonfirmasi"}
-                        {res.status === "canceled" && "Dibatalkan"}
-                        {!res.status && "Belum Diproses"}
-                      </span>
-                    </td>
-                    <td className="actions">
-                      {res.status === "pending" ? (
-                        <>
-                          <button
-                            className="action-btn confirm"
-                            onClick={() => updateStatus(res.id, "confirmed")}
-                            title="Konfirmasi"
-                          >
-                            <i className="fas fa-check"></i>
-                          </button>
-                          <button
-                            className="action-btn reject"
-                            onClick={() => updateStatus(res.id, "canceled")}
-                            title="Batalkan"
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </>
-                      ) : (
-                        <span className="no-action">-</span>
-                      )}
-                    </td>
-                  </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="7" className="no-data">Tidak ada data reservasi</td>
-                    </tr>
-                  )}
-                </tbody>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>No HP</th>
+            <th>Tanggal Reservasi</th>
+            <th>Waktu Reservasi</th>
+            <th>Layanan</th>
+            <th>Bukti Transfer</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reservations.length > 0 ? (
+            reservations.map(res => (
+          <tr key={res.id}>
+            <td>{res.nama}</td>
+            <td>{res.no_hp}</td>
+            <td>{formatReservationDate(res.tanggal_reservasi)}</td>
+            <td>{formatReservationTime(res.jam)}</td>
+            <td>{res.nama_layanan}</td>
+            <td>
+              {res.bukti_transfer ? (
+                <button
+                  className="btn-view-proof"
+                  onClick={() => {
+                    setSelectedProofImage(`http://localhost:5000/uploads/bukti_tf/${res.bukti_transfer}`);
+                    setIsProofModalOpen(true);
+                  }}
+                >
+                  Lihat
+                </button>
+              ) : (
+                <span>Tidak ada</span>
+              )}
+            </td>
+            <td>
+              <span className={`status-badge ${res.status || "none"}`}>
+                {res.status === "pending" && "Menunggu"}
+                {res.status === "confirmed" && "Dikonfirmasi"}
+                {res.status === "canceled" && "Dibatalkan"}
+                {!res.status && "Belum Diproses"}
+              </span>
+            </td>
+            <td className="actions">
+              {res.status === "pending" ? (
+                <>
+                  <button
+                    className="action-btn confirm"
+                    onClick={() => updateStatus(res.id, "confirmed")}
+                    title="Konfirmasi"
+                  >
+                    <i className="fas fa-check"></i>
+                  </button>
+                  <button
+                    className="action-btn reject"
+                    onClick={() => updateStatus(res.id, "canceled")}
+                    title="Batalkan"
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </>
+              ) : (
+                <span className="no-action">-</span>
+              )}
+            </td>
+          </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" className="no-data">Tidak ada data reservasi</td>
+            </tr>
+          )}
+        </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Bukti Transfer */}
+        {isProofModalOpen && (
+          <div 
+            className="modal" 
+            onClick={(e) => {
+              if (e.target.className === "modal") {
+                setIsProofModalOpen(false);
+                setSelectedProofImage(null);
+              }
+            }}
+          >
+            <div className="modal-content proof-modal-content">
+              <button 
+                className="modal-close-btn" 
+                onClick={() => {
+                  setIsProofModalOpen(false);
+                  setSelectedProofImage(null);
+                }}
+                aria-label="Close modal"
+              >
+                &times;
+              </button>
+              <img 
+                src={selectedProofImage} 
+                alt="Bukti Transfer" 
+                className="proof-image"
+              />
             </div>
           </div>
         )}

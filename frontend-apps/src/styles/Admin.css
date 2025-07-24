@@ -1432,3 +1432,58 @@
 .custom-file-input:hover .file-input-label {
   background-color: #fff0f3;
 }
+
+/* Button Lihat Bukti Transfer */
+.btn-view-proof {
+  background-color: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(85, 100, 235, 0.4); /* primary shadow */
+}
+
+.btn-view-proof:hover {
+  background-color: var(--info);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.6); /* info shadow */
+}
+
+/* Modal Bukti Transfer Styles */
+.proof-modal-content {
+  max-width: 700px;
+  padding: 1rem;
+  position: relative;
+}
+
+.proof-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  object-fit: contain;
+  max-height: 80vh;
+  display: block;
+  margin: 0 auto;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 2.5rem;
+  color: var(--dark);
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-close-btn:hover {
+  color: var(--danger);
+}
