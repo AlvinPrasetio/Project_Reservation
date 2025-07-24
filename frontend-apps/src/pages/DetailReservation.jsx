@@ -71,19 +71,17 @@ const DetailReservasi = () => {
 
   const layananDetail = layananData.find(l => l.id === reservation.layanan_id);
   const harga = layananDetail ? layananDetail.harga : "Belum ditentukan";
-  const deskripsi = layananDetail ? layananDetail.deskripsi : "";
 
   return (
     <div className="detail-container">
       <h2>Detail Pemesanan</h2>
       <div className="detail-box">
         <p><strong>Nama   :</strong> {reservation.nama}</p>
-        <p><strong>Layanan:</strong> {reservation.layanan}</p>
+        <p><strong>Layanan:</strong> {layananDetail ? layananDetail.nama_layanan : "Tidak ditemukan"}</p>
         <p><strong>Tanggal:</strong> {formatTanggal(reservation.tanggal_reservasi)}</p>
         <p><strong>Jam    :</strong> {reservation.jam}</p>
         <p><strong>No HP  :</strong> {reservation.no_hp}</p>
         <p><strong>Harga  :</strong> {typeof harga === "number" ? `Rp ${harga.toLocaleString('id-ID')}` : harga}</p>
-        <p><strong>Deskripsi  :</strong> {deskripsi}</p>
         <p><strong>Status :</strong> {reservation.status}</p>
       </div>
       <button className="btn-back" onClick={() => navigate("/users")}>Kembali</button>

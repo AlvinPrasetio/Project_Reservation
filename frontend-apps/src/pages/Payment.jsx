@@ -8,7 +8,30 @@ const Payment = () => {
   const { id } = useParams();
   const [reservation, setReservation] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [layananList, setLayananList] = useState([]);
+  const [layananDetail, setLayananDetail] = useState(null);
 
+  useEffect(() => {
+    const fetchLayanan = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/layanan");
+        const data = await res.json();
+        setLayananList(data);
+      } catch (error) {
+        console.error("Gagal mengambil data layanan:", error);
+      }
+    };
+
+    fetchLayanan();
+      }, []);
+      useEffect(() => {
+      if (reservation && layananList.length > 0) {
+        const layanan = layananList.find((item) => item.id === reservation.layanan_id);
+        setLayananDetail(layanan || null);
+      }
+    }, [reservation, layananList]);
+
+  
   useEffect(() => {
     const fetchReservation = async (reservationId) => {
       try {
@@ -57,7 +80,33 @@ const Payment = () => {
     return null;
   }
 
-  const price = reservation.harga || 0;
+  const handleCancel = async () => {
+  const confirmCancel = window.confirm("Apakah Anda yakin ingin membatalkan reservasi ini?");
+  if (!confirmCancel) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`http://localhost:5000/reservasi/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Gagal membatalkan reservasi.");
+    }
+
+        alert("Reservasi berhasil dibatalkan.");
+        navigate("/users");
+      } catch (error) {
+        console.error(error);
+        alert("Terjadi kesalahan saat membatalkan reservasi.");
+      }
+    };
+
+
+  // const price = reservation.harga || 0;
   const formattedDate = new Date(reservation.tanggal_reservasi).toLocaleDateString("id-ID", {
     year: "numeric",
     month: "long",
@@ -70,12 +119,10 @@ const Payment = () => {
 
       <div className="payment-info">
         <p>Nama Pelanggan : {reservation.nama}</p>
-        <p>Layanan Dipilih : {reservation.nama_layanan || reservation.layanan}</p>
-        <p>Tanggal Reservasi : {formattedDate}</p>
+        <p>Layanan Dipilih : {layananDetail ? layananDetail.nama_layanan : "Tidak ditemukan"}</p>        <p>Tanggal Reservasi : {formattedDate}</p>
         <p>Jam Reservasi : {reservation.jam}</p>
         <p>No HP : {reservation.no_hp}</p>
-        <p>Harga Layanan : Rp {price.toLocaleString("id-ID")}</p>
-        <p>Status Pembayaran : {reservation.status || "Belum Dibayar"}</p>
+        <p>Harga Layanan : Rp {layananDetail ? layananDetail.harga.toLocaleString("id-ID") : "Tidak tersedia"}</p>        <p>Status Pembayaran : {reservation.status || "Belum Dibayar"}</p>
       </div>
 
       <h3>Metode Pembayaran</h3>
@@ -111,7 +158,7 @@ const Payment = () => {
       </a>
 
       <div className="payment-buttons">
-        <button className="cancel-btn" onClick={() => navigate("/users")}>Batalkan</button>
+        <button className="cancel-btn" onClick={handleCancel}>Batalkan</button>
         <button className="pay-btn" onClick={handlePay}>Konfirmasi</button>
       </div>
     </div>
