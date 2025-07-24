@@ -128,6 +128,44 @@ router.delete("/:id", authorizeAdmin, async (req, res) => {
   }
 });
 
+// ✅ PATCH Cancel Reservasi (user can cancel own reservation)
+router.patch("/:id/cancel", authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if reservation exists and belongs to user
+    const [rows] = await pool.query("SELECT * FROM reservasi WHERE id = ? AND user_id = ?", [id, userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Reservasi tidak ditemukan atau bukan milik Anda" });
+    }
+
+    // Update status to 'canceled'
+    const [result] = await pool.query("UPDATE reservasi SET status = 'canceled' WHERE id = ?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ message: "Gagal membatalkan reservasi" });
+    }
+
+    res.json({ message: "Reservasi berhasil dibatalkan" });
+  } catch (error) {
+    console.error("Gagal membatalkan reservasi:", error);
+    res.status(500).json({ message: "Gagal membatalkan reservasi" });
+  }
+});
+
+// Contoh: POST /reservasi/:id/upload-bukti
+// router.post('/reservasi/:id/upload-bukti', upload.single('bukti_transfer'), async (req, res) => {
+//   const { id } = req.params;
+//   const file = req.file;
+
+//   if (!file) return res.status(400).json({ message: 'File bukti tidak ditemukan.' });
+
+//   await db.query('UPDATE reservasi SET bukti_transfer = ? WHERE id = ?', [file.filename, id]);
+//   res.json({ message: 'Bukti transfer berhasil diupload.' });
+// });
+
+
 // ✅ Endpoint untuk membuat data testing (menangkap jam acak)
 router.get("/create-test-data", async (req, res) => {
   try {

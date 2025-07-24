@@ -7,9 +7,9 @@ const Payment = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [reservation, setReservation] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [layananList, setLayananList] = useState([]);
   const [layananDetail, setLayananDetail] = useState(null);
+  const [buktiTransfer, setBuktiTransfer] = useState(null);
 
   useEffect(() => {
     const fetchLayanan = async () => {
@@ -21,17 +21,16 @@ const Payment = () => {
         console.error("Gagal mengambil data layanan:", error);
       }
     };
-
     fetchLayanan();
-      }, []);
-      useEffect(() => {
-      if (reservation && layananList.length > 0) {
-        const layanan = layananList.find((item) => item.id === reservation.layanan_id);
-        setLayananDetail(layanan || null);
-      }
-    }, [reservation, layananList]);
+  }, []);
 
-  
+  useEffect(() => {
+    if (reservation && layananList.length > 0) {
+      const layanan = layananList.find((item) => item.id === reservation.layanan_id);
+      setLayananDetail(layanan || null);
+    }
+  }, [reservation, layananList]);
+
   useEffect(() => {
     const fetchReservation = async (reservationId) => {
       try {
@@ -65,14 +64,42 @@ const Payment = () => {
     }
   }, [location, navigate, id]);
 
-  const handlePay = () => {
-    if (!paymentMethod) {
-      alert("Silakan pilih metode pembayaran terlebih dahulu.");
+  const handleCancel = async () => {
+    const confirmCancel = window.confirm("Apakah Anda yakin ingin membatalkan reservasi ini?");
+    if (!confirmCancel) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const reservationId = reservation?.id || id;
+
+      const response = await fetch(`http://localhost:5000/reservasi/${reservationId}/cancel`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Gagal membatalkan reservasi.");
+      }
+
+      alert("Reservasi berhasil dibatalkan.");
+      navigate("/users");
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan saat membatalkan reservasi: " + error.message);
+    }
+  };
+
+  const handleUpload = () => {
+    if (!buktiTransfer) {
+      alert("Silakan upload bukti transfer terlebih dahulu.");
       return;
     }
-
-    // Simulasi pembayaran
-    alert(`Pembayaran melalui ${paymentMethod}, Mohon Tunggu Konfirmasi oleh Admin!`);
+    // Simulasi upload
+    alert("Bukti transfer berhasil dikirim. Mohon tunggu konfirmasi dari admin.");
     navigate("/users");
   };
 
@@ -80,33 +107,6 @@ const Payment = () => {
     return null;
   }
 
-  const handleCancel = async () => {
-  const confirmCancel = window.confirm("Apakah Anda yakin ingin membatalkan reservasi ini?");
-  if (!confirmCancel) return;
-
-  try {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:5000/reservasi/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Gagal membatalkan reservasi.");
-    }
-
-        alert("Reservasi berhasil dibatalkan.");
-        navigate("/users");
-      } catch (error) {
-        console.error(error);
-        alert("Terjadi kesalahan saat membatalkan reservasi.");
-      }
-    };
-
-
-  // const price = reservation.harga || 0;
   const formattedDate = new Date(reservation.tanggal_reservasi).toLocaleDateString("id-ID", {
     year: "numeric",
     month: "long",
@@ -119,47 +119,33 @@ const Payment = () => {
 
       <div className="payment-info">
         <p>Nama Pelanggan : {reservation.nama}</p>
-        <p>Layanan Dipilih : {layananDetail ? layananDetail.nama_layanan : "Tidak ditemukan"}</p>        <p>Tanggal Reservasi : {formattedDate}</p>
+        <p>Layanan Dipilih : {layananDetail ? layananDetail.nama_layanan : "Tidak ditemukan"}</p>
+        <p>Tanggal Reservasi : {formattedDate}</p>
         <p>Jam Reservasi : {reservation.jam}</p>
         <p>No HP : {reservation.no_hp}</p>
-        <p>Harga Layanan : Rp {layananDetail ? layananDetail.harga.toLocaleString("id-ID") : "Tidak tersedia"}</p>        <p>Status Pembayaran : {reservation.status || "Belum Dibayar"}</p>
+        <p>Harga Layanan : Rp {layananDetail ? layananDetail.harga.toLocaleString("id-ID") : "Tidak tersedia"}</p>
+        <p>Status Pembayaran : {reservation.status || "Belum Dibayar"}</p>
       </div>
 
-      <h3>Metode Pembayaran</h3>
+      <h3>Pembayaran</h3>
       <div className="payment-methods">
-        <label>
-          <input
-            type="radio"
-            value="Transfer Bank"
-            checked={paymentMethod === "Transfer Bank"}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
-          Transfer Bank<br />
-          <span className="rekening">No Rekening: 5420333121 (BCA a.n. Marlia)</span>
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="Bayar Ditempat"
-            checked={paymentMethod === "Bayar Ditempat"}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-          />
-          Bayar Ditempat
-        </label>
+        <p><strong>Transfer Bank</strong></p>
+        <p className="rekening">No Rekening: 5420333121 (BCA a.n. Marlia)</p>
       </div>
 
-      <a
-        href="https://wa.me/6285155140228?text=Halo%20saya%20ingin%20konfirmasi%20pembayaran%20reservasi%20di%20Lia%20Perawatan%20Kulit."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="wa-button"
-      >
-        Konfirmasi WhatsApp
-      </a>
+      <div className="upload-button">
+        <label htmlFor="bukti">Upload Bukti Transfer:</label>
+        <input
+          type="file"
+          id="bukti"
+          accept="image/*,application/pdf"
+          onChange={(e) => setBuktiTransfer(e.target.files[0])}
+        />
+      </div>
 
       <div className="payment-buttons">
         <button className="cancel-btn" onClick={handleCancel}>Batalkan</button>
-        <button className="pay-btn" onClick={handlePay}>Konfirmasi</button>
+        <button className="pay-btn" onClick={handleUpload}>Kirim Bukti Transfer</button>
       </div>
     </div>
   );
