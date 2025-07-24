@@ -93,14 +93,38 @@ const Payment = () => {
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!buktiTransfer) {
       alert("Silakan upload bukti transfer terlebih dahulu.");
       return;
     }
-    // Simulasi upload
-    alert("Bukti transfer berhasil dikirim. Mohon tunggu konfirmasi dari admin.");
-    navigate("/users");
+
+    try {
+      const token = localStorage.getItem("token");
+      const reservationId = reservation?.id || id;
+
+      const formData = new FormData();
+      formData.append("bukti_transfer", buktiTransfer);
+
+      const response = await fetch(`http://localhost:5000/reservasi/${reservationId}/upload-bukti`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Gagal mengupload bukti transfer.");
+      }
+
+      alert("Bukti transfer berhasil dikirim. Mohon tunggu konfirmasi dari admin.");
+      navigate("/users");
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan saat mengupload bukti transfer: " + error.message);
+    }
   };
 
   if (!reservation) {

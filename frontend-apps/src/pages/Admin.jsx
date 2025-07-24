@@ -104,10 +104,10 @@ const Admin = () => {
         // Hitung layanan terpopuler
         const services = {};
         data.forEach(r => {
-          if (services[r.layanan]) {
-            services[r.layanan]++;
+          if (services[r.nama_layanan]) {
+            services[r.nama_layanan]++;
           } else {
-            services[r.layanan] = 1;
+            services[r.nama_layanan] = 1;
           }
         });
 
@@ -641,18 +641,18 @@ const Admin = () => {
                       {reservations.slice(0, 5).map(res => (
                         <tr key={res.id}>
                           <td>{res.nama}</td>
-                          <td>{res.layanan}</td>
-                          <td>{formatReservationDate(res.tanggal_reservasi, res.created_at)}</td>
-                          <td>
-                            <span className={`status-badge ${res.status || "none"}`}>
-                              {res.status === "pending" && "Menunggu"}
-                              {res.status === "confirmed" && "Dikonfirmasi"}
-                              {res.status === "canceled" && "Dibatalkan"}
-                              {!res.status && "Belum Diproses"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      <td>{res.nama_layanan}</td>
+                      <td>{formatReservationDate(res.tanggal_reservasi, res.created_at)}</td>
+                      <td>
+                        <span className={`status-badge ${res.status || "none"}`}>
+                          {res.status === "pending" && "Menunggu"}
+                          {res.status === "confirmed" && "Dikonfirmasi"}
+                          {res.status === "canceled" && "Dibatalkan"}
+                          {!res.status && "Belum Diproses"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
                     </tbody>
                   </table>
                 </div>
@@ -698,7 +698,6 @@ const Admin = () => {
                 <thead>
                   <tr>
                     <th>Nama</th>
-                    <th>Email</th>
                     <th>No HP</th>
                     <th>Tanggal Reservasi</th>
                     <th>Waktu Reservasi</th>
@@ -712,11 +711,10 @@ const Admin = () => {
                     reservations.map(res => (
                   <tr key={res.id}>
                     <td>{res.nama}</td>
-                    <td>{res.email}</td>
                     <td>{res.no_hp}</td>
                     <td>{formatReservationDate(res.tanggal_reservasi)}</td>
                     <td>{formatReservationTime(res.jam)}</td>
-                    <td>{res.layanan}</td>
+                    <td>{res.nama_layanan}</td>
                     <td>
                       <span className={`status-badge ${res.status || "none"}`}>
                         {res.status === "pending" && "Menunggu"}

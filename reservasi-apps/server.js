@@ -7,9 +7,24 @@ const layananRoutes = require('./routes/layananRoutes');
 const pool = require('./db');
 const path = require('path');
 const { authenticate, authorizeAdmin } = require('./middleware/authMiddleware');
+const multer = require('multer');  // Added multer import
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// Multer storage configuration for bukti_tf uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, 'uploads', 'bukti_tf'));
+  },
+  filename: function (req, file, cb) {
+    // Use timestamp + original filename to avoid conflicts
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+const upload = multer({ storage });
 
 // Middleware
 app.use(cors({

@@ -1,8 +1,22 @@
 const express = require('express');
 const pool = require('../db');
 const { authenticate, authorizeAdmin } = require('../middleware/authMiddleware');
+const multer = require('multer');
+const path = require('path');
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '..', 'uploads', 'bukti_tf'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+const uploadMiddleware = multer({ storage });
 
 // ✅ GET Semua Reservasi
 router.get("/", authenticate, async (req, res) => {
@@ -154,16 +168,29 @@ router.patch("/:id/cancel", authenticate, async (req, res) => {
   }
 });
 
-// Contoh: POST /reservasi/:id/upload-bukti
-// router.post('/reservasi/:id/upload-bukti', upload.single('bukti_transfer'), async (req, res) => {
-//   const { id } = req.params;
-//   const file = req.file;
+router.post('/:id/upload-bukti', uploadMiddleware.single('bukti_transfer'), async (req, res) => {
+  const { id } = req.params;
+  const file = req.file;
 
-//   if (!file) return res.status(400).json({ message: 'File bukti tidak ditemukan.' });
+  if (!file) {
+    return res.status(400).json({ message: 'File bukti transfer tidak ditemukan.' });
+  }
 
-//   await db.query('UPDATE reservasi SET bukti_transfer = ? WHERE id = ?', [file.filename, id]);
-//   res.json({ message: 'Bukti transfer berhasil diupload.' });
-// });
+  try {
+    const [result] = await pool.query('UPDATE reservasi SET bukti_transfer = ? WHERE id = ?', [file.filename, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Reservasi tidak ditemukan' });
+    }
+
+    res.json({ message: 'Bukti transfer berhasil diupload.', filename: file.filename });
+  } catch (error) {
+    console.error('Gagal mengupdate bukti transfer:', error);
+    res.status(500).json({ message: 'Gagal mengupdate bukti transfer' });
+  }
+});
+
+module.exports = router;
 
 
 // ✅ Endpoint untuk membuat data testing (menangkap jam acak)
