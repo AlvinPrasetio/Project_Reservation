@@ -1,55 +1,121 @@
+/* DetailReservasi.css */
+
 .detail-container {
-  max-width: 600px;
-  margin: 3rem auto 4rem auto;
-  background: #fff;
-  padding: 2.5rem 3rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  color: #333333;
-  margin-top: 80px;
+    max-width: 600px;
+    margin: 80px auto 4rem auto; /* Adjusted margin-top to account for fixed navbar */
+    padding: 30px; /* Increased padding */
+    background-color: #ffffff; /* Changed to white background */
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); /* Matched shadow with user-wrapper */
+    position: relative;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    border: 1px solid #f0f0f0; /* Added a subtle border */
+}
+
+.detail-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(to right, #ff6b6b, #ffb8b8); /* Matched top border with user-wrapper */
 }
 
 .detail-container h2 {
-  margin-bottom: 2rem;
-  text-align: center;
-  color: #e91e63;
-  font-weight: 700;
-  font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 25px; /* Adjusted margin-bottom */
+    color: #ff6b6b; /* Matched title color with reservation form */
+    font-weight: 700;
+    font-size: 2rem; /* Increased font size for consistency */
+    position: relative; /* Needed for the ::after element */
+    padding-bottom: 15px; /* Space for the underline */
+}
+
+.detail-container h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%; /* Center the underline */
+    transform: translateX(-50%); /* Adjust to truly center */
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, #ff6b6b, #ffb8b8); /* Matched underline with reservation form titles */
+    border-radius: 10px;
 }
 
 .detail-box {
-  background-color: #fafafa;
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+    background-color: #fff8f8; /* Softer background color, like the payment methods box */
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: none; /* Removed the inset shadow, opting for a cleaner look */
+    border: 1px solid #ffe0e0; /* Added a subtle border matching the user-info box in the header */
+    margin-bottom: 30px; /* Add space before the button */
 }
 
 .detail-box p {
-  margin: 1rem 0;
-  font-size: 17px;
-  color: #444444;
-  font-weight: 500;
+    margin: 10px 0; /* Adjusted margin for better spacing */
+    font-size: 1.1rem; /* Slightly larger font for readability */
+    color: #666; /* Softer color for text */
+    line-height: 1.5; /* Improved line height for readability */
 }
 
 .detail-box p strong {
-  font-weight: 700;
-  color: #e91e63;
+    font-weight: 600; /* Slightly less bold than before, but still distinct */
+    color: #333; /* Changed to a darker general text color for labels */
 }
 
+/* Specific styling for the actual values if needed, otherwise default to .detail-box p */
+.detail-box p strong + span { /* Targeting the span immediately after strong (the value) */
+    color: #444; /* Slightly darker for values */
+}
+
+
 .btn-back {
-  display: block;
-  margin: 3rem auto 0;
-  padding: 12px 28px;
-  background-color: #f06292;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1rem;
-  transition: background 0.3s;
+    display: block;
+    margin: 0 auto; /* Center the button */
+    padding: 14px; /* Increased padding for better button size */
+    background-color: #ff6b6b; /* Matched button color with reservation form */
+    color: white;
+    border: none;
+    border-radius: 8px; /* Matched border-radius with reservation form buttons */
+    cursor: pointer;
+    font-weight: 600; /* Matched font weight with reservation form buttons */
+    font-size: 1rem; /* Matched font size with reservation form buttons */
+    transition: all 0.3s ease; /* Smooth transition */
+    width: fit-content; /* Make button width fit content */
+    min-width: 120px; /* Ensure minimum width */
 }
 
 .btn-back:hover {
-  background-color: #ec407a;
+    background-color: #ff5252; /* Darker red on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2); /* Soft shadow on hover */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .detail-container {
+        margin-top: 60px; /* Adjust top margin for mobile navbar */
+        padding: 20px;
+    }
+
+    .detail-container h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .detail-box {
+        padding: 1.5rem 2rem;
+    }
+
+    .detail-box p {
+        font-size: 1rem;
+    }
+
+    .btn-back {
+        width: 100%; /* Full width button on small screens */
+    }
 }

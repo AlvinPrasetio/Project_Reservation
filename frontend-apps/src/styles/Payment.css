@@ -1,89 +1,230 @@
+/* payment.css */
+
 .payment-container {
-  max-width: 600px;
-  margin: 3rem auto 4rem auto;
-  padding: 2.5rem 3rem;
-  border: 2px solid #f97316;
-  background-color: #fff0f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.2);
-  margin-top: 80px;
+    max-width: 600px;
+    margin: 80px auto 4rem auto; /* Adjusted margin-top to account for fixed navbar */
+    padding: 30px; /* Increased padding */
+    background-color: #ffffff; /* Changed to white background */
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); /* Matched shadow with user-wrapper */
+    position: relative;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    border: 1px solid #f0f0f0; /* Added a subtle border */
+}
+
+.payment-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(to right, #ff6b6b, #ffb8b8); /* Matched top border with user-wrapper */
 }
 
 .payment-container h2 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #d946ef;
-  font-weight: 700;
-  font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 25px; /* Adjusted margin-bottom */
+    color: #ff6b6b; /* Matched title color with reservation form */
+    font-weight: 700;
+    font-size: 2rem; /* Increased font size for consistency */
+}
+
+.payment-info {
+    margin-bottom: 30px; /* Add some space below payment info */
 }
 
 .payment-info p {
-  margin: 1rem 0;
-  font-size: 1.1rem;
-  line-height: 1.5;
+    margin: 10px 0; /* Adjusted margin for better spacing */
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #666; /* Softer color for text */
 }
 
 .payment-methods {
-  margin-top: 2rem;
-  padding: 1rem 1.25rem;
-  border: 1px dashed #f97316;
-  background-color: #fff;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1f2937;
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px dashed #ffb8b8; /* Changed border color to lighter red */
+    background-color: #fff8f8; /* Softer background color */
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333; /* Darker color for method text */
 }
 
 .rekening {
-  font-size: 1rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-  font-weight: 400;
+    font-size: 1rem;
+    color: #666; /* Matched color with general text */
+    margin-top: 0.25rem;
+    font-weight: 400;
 }
 
-/* Gaya untuk tombol upload bukti transfer */
+.payment-container h3 {
+    margin-top: 25px; /* Add margin above "Pembayaran" title */
+    color: #ff6b6b; /* Matched title color with reservation form */
+    position: relative;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 1.5rem; /* Matched font size with reservation form titles */
+    font-weight: 600;
+}
+
+.payment-container h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, #ff6b6b, #ffb8b8); /* Matched underline with reservation form titles */
+    border-radius: 10px;
+}
+
+
+/* Gaya untuk input file */
 .upload-button {
-  display: block;
-  width: 100%;
-  margin-top: 2rem;
-  padding: 12px 0;
-  background-color: #16a34a; /* hijau */
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-  transition: background-color 0.3s ease;
+    display: flex; /* Use flexbox for label and input */
+    align-items: center; /* Vertically align items */
+    margin-top: 2rem;
+    margin-bottom: 20px; /* Add bottom margin */
+    gap: 10px; /* Space between label and input */
 }
 
-.upload-button:hover {
-  background-color: #15803d;
+.upload-button label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95rem;
+    white-space: nowrap; /* Prevent label from wrapping */
 }
+
+.upload-button input[type="file"] {
+    flex-grow: 1; /* Allow input to take remaining space */
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    color: #333;
+    cursor: pointer;
+}
+
+.upload-button input[type="file"]:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.upload-button input[type="file"]::-webkit-file-upload-button {
+    visibility: hidden; /* Hide default button */
+    width: 0; /* collapse it */
+    padding: 0; /* remove padding */
+    margin: 0; /* remove margin */
+}
+
+/* Style for custom file input appearance (optional, but good for consistency) */
+.upload-button input[type="file"]::before {
+    content: 'Pilih File'; /* Custom text for the button */
+    display: inline-block;
+    background: linear-gradient(to right, #ff6b6b, #ff8c8c); /* Gradient background */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    outline: none;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+.upload-button input[type="file"]:hover::before {
+    background: linear-gradient(to right, #ff5252, #ff7070);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2);
+}
+
 
 .payment-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2.5rem;
-  gap: 15px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    gap: 15px;
 }
 
 .cancel-btn, .pay-btn {
-  flex: 1;
-  padding: 12px 0;
-  background-color: #f97316;
-  border: none;
-  color: white;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: background-color 0.3s ease;
+    flex: 1;
+    padding: 14px; /* Increased padding for better button size */
+    background-color: #ff6b6b; /* Matched button color with reservation form */
+    border: none;
+    color: white;
+    border-radius: 8px; /* Matched border-radius with reservation form buttons */
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem; /* Matched font size with reservation form buttons */
+    transition: all 0.3s ease; /* Smooth transition */
 }
 
-.cancel-btn:hover, .pay-btn:hover {
-  background-color: #ea580c;
+.cancel-btn {
+    background-color: #ffb8b8; /* Lighter red for cancel button */
+    color: #d32f2f; /* Darker red text for cancel button */
+    border: 1px solid #ffb8b8;
+}
+
+.cancel-btn:hover {
+    background-color: #ff6b6b; /* On hover, make it the primary red */
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+.pay-btn {
+    background-color: #ff6b6b; /* Primary red for pay button */
+}
+
+.pay-btn:hover {
+    background-color: #ff5252; /* Darker red on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .payment-container {
+        margin-top: 60px; /* Adjust top margin for mobile navbar */
+        padding: 20px;
+    }
+
+    .payment-container h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .payment-container h3 {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+    }
+
+    .payment-buttons {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+        gap: 10px;
+    }
+
+    .cancel-btn, .pay-btn {
+        width: 100%;
+    }
+
+    .upload-button {
+        flex-direction: column; /* Stack label and input vertically */
+        align-items: flex-start; /* Align to the start */
+        gap: 5px;
+    }
+
+    .upload-button input[type="file"] {
+        width: 100%; /* Full width for input */
+    }
 }

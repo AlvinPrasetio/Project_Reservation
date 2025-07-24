@@ -1,6 +1,6 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "../styles/Payment.css";
+import "../styles/Payment.css"; // Ensure this path is correct
 
 const Payment = () => {
   const location = useLocation();
@@ -10,6 +10,7 @@ const Payment = () => {
   const [layananList, setLayananList] = useState([]);
   const [layananDetail, setLayananDetail] = useState(null);
   const [buktiTransfer, setBuktiTransfer] = useState(null);
+  const [fileName, setFileName] = useState(""); // State to store file name
 
   useEffect(() => {
     const fetchLayanan = async () => {
@@ -151,7 +152,7 @@ const Payment = () => {
         <p>Status Pembayaran : {reservation.status || "Belum Dibayar"}</p>
       </div>
 
-      <h3>Pembayaran</h3>
+      <h3>Pembayaran</h3> {/* Changed to h3 for consistency with reservation form */}
       <div className="payment-methods">
         <p><strong>Transfer Bank</strong></p>
         <p className="rekening">No Rekening: 5420333121 (BCA a.n. Marlia)</p>
@@ -162,9 +163,13 @@ const Payment = () => {
         <input
           type="file"
           id="bukti"
-          accept="image/*,application/pdf"
-          onChange={(e) => setBuktiTransfer(e.target.files[0])}
+          accept="image/*"
+          onChange={(e) => {
+            setBuktiTransfer(e.target.files[0]);
+            setFileName(e.target.files[0] ? e.target.files[0].name : ""); // Update file name
+          }}
         />
+        {fileName && <span>{fileName}</span>} {/* Display selected file name */}
       </div>
 
       <div className="payment-buttons">
