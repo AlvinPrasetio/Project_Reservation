@@ -1488,3 +1488,164 @@
   color: var(--danger);
 }
 
+.reservation-filters {
+  display: flex;
+  gap: 10px; /* Jarak antar tombol */
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Agar tombol bisa pindah baris di layar kecil */
+}
+
+.reservation-filters button {
+  background-color: #f0f2f5; /* Warna latar belakang default */
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Transisi untuk efek hover dan aktif */
+}
+
+.reservation-filters button:hover {
+  background-color: #e0e2e5;
+  border-color: #ccc;
+}
+
+.reservation-filters button.active {
+  background-color: #007bff; /* Warna biru untuk tombol aktif */
+  color: white;
+  border-color: #007bff;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+/* Laporan Keuangan Styling */
+.data-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.data-card .card-header .reservation-filters {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-right: auto;
+  margin-left: 20px;
+}
+
+.data-card .card-header button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-download-pdf {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-download-pdf:hover {
+  background-color: #c82333;
+}
+
+.report-content-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin-top: 20px;
+}
+
+.report-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.report-header h3 {
+  font-size: 24px;
+  color: #333;
+}
+
+.report-header p {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.section h4 {
+  color: #555;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.summary-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.summary-item.total-summary {
+    border-top: 2px solid #007bff;
+    padding-top: 10px;
+    margin-top: 20px;
+}
+
+.amount {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.negative {
+    color: #dc3545;
+}
+
+.completed {
+    color: #28a745;
+}
+
+.cancelled {
+    color: #dc3545;
+}
+
+.status-badge.confirmed {
+  background-color: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Adjustments for the main table to use the same badge style */
+.data-table .status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
+
+.data-table .status-badge.pending { background-color: #ffc107; }
+.data-table .status-badge.confirmed { background-color: #28a745; }
+.data-table .status-badge.canceled { background-color: #dc3545; }

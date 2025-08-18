@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import "../styles/Admin.css";
 // Import image map dari OurServices
 import haircolor from "../assets/OurService/HairColoring.jpg";
@@ -36,14 +38,23 @@ const formatPrice = (price) => {
   return price;
 };
 
+// Fungsi untuk format mata uang ke Rupiah
+const formatRupiah = (angka) => {
+  return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+  }).format(angka);
+};
+
 const Admin = () => {
-  const [reservations, setReservations] = useState([]);
+  const [displayedReservations, setDisplayedReservations] = useState([]); 
+  const [allReservations, setAllReservations] = useState([]); 
   const [users, setUsers] = useState([]);
   const [layanan, setLayanan] = useState([]);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [token, setToken] = useState("");
-  // State untuk modal layanan
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -53,13 +64,12 @@ const Admin = () => {
     deskripsi: "",
     harga: "",
     durasi: "",
-    gambar_url: "" // Tambahkan gambar_url
+    gambar_url: ""
   });
 
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
 
-  // New state for proof of transfer modal
   const [isProofModalOpen, setIsProofModalOpen] = useState(false);
   const [selectedProofImage, setSelectedProofImage] = useState(null);
 
@@ -72,22 +82,54 @@ const Admin = () => {
     totalLayanan: 0,
     popularServices: []
   });
-  const [reportData, setReportData] = useState([]);
   const [reportType, setReportType] = useState("harian");
 
-  const fetchReport = async (type) => {
-  try {
-    const res = await fetch(`http://localhost:5000/reservasi/laporan?tipe=${type}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error("Gagal mengambil laporan");
-    const data = await res.json();
-    setReportData(data);
-    setReportType(type);
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const filterReservationsByDate = (type, dataToFilter) => {
+    const today = new Date();
+    let startDate;
+
+    switch (type) {
+      case "harian":
+        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        break;
+      case "mingguan":
+        startDate = new Date();
+        startDate.setDate(today.getDate() - 6); 
+        startDate.setHours(0, 0, 0, 0); 
+        break;
+      case "bulanan":
+        startDate = new Date();
+        startDate.setDate(today.getDate() - 29); 
+        startDate.setHours(0, 0, 0, 0); 
+        break;
+      case "semua":
+        startDate = new Date(0); 
+        break;
+      default:
+        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        break;
+    }
+
+    const endDate = new Date(); 
+    endDate.setHours(23, 59, 59, 999); 
+
+    let filtered = [];
+    if (type === "semua") {
+        filtered = dataToFilter; 
+    } else {
+        filtered = dataToFilter.filter(res => {
+            const reservationDate = new Date(res.tanggal_reservasi);
+            return reservationDate >= startDate && reservationDate <= endDate;
+        });
+    }
+
+    setDisplayedReservations(filtered); 
+    setReportType(type); 
+  };
+
+  const fetchReport = (type) => {
+    filterReservationsByDate(type, allReservations); 
+  };
 
   const navigate = useNavigate();
   const adminName = localStorage.getItem("userName") || "Admin";
@@ -109,20 +151,18 @@ const Admin = () => {
     
     setToken(token);
 
-    // Ambil data reservasi
     fetch("http://localhost:5000/reservasi", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
       .then(data => {
-        setReservations(data);
-        
-        // Hitung statistik
+        setAllReservations(data); 
+        filterReservationsByDate("harian", data);
+
         const pending = data.filter(r => r.status === "pending").length;
         const confirmed = data.filter(r => r.status === "confirmed").length;
         const canceled = data.filter(r => r.status === "canceled").length;
         
-        // Hitung layanan terpopuler
         const services = {};
         data.forEach(r => {
           if (services[r.nama_layanan]) {
@@ -148,7 +188,6 @@ const Admin = () => {
       })
       .catch(err => console.error("Gagal mengambil data reservasi:", err));
 
-    // Ambil data user
     fetch("http://localhost:5000/auth/users", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -162,7 +201,6 @@ const Admin = () => {
       })
       .catch(err => console.error("Gagal mengambil data user:", err));
       
-    // Ambil data layanan
     fetch("http://localhost:5000/layanan", {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -175,9 +213,8 @@ const Admin = () => {
         }));
       })
       .catch(err => console.error("Gagal mengambil data layanan:", err));
-  }, [navigate]);
-  
-  // Fungsi untuk mengelola layanan
+  }, [navigate, token]); 
+
   const fetchLayanan = async () => {
     try {
       const response = await fetch("http://localhost:5000/layanan", {
@@ -203,7 +240,6 @@ const Admin = () => {
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Jika field harga, pastikan hanya angka yang diinput
     if (name === "harga") {
       const numericValue = value.replace(/\D/g, "");
       setCurrentLayanan({ ...currentLayanan, [name]: numericValue });
@@ -241,11 +277,9 @@ const Admin = () => {
   const openEditModal = (layanan) => {
     setCurrentLayanan(layanan);
     
-    // Jika layanan memiliki gambar_url dari database, gunakan itu
     if (layanan.gambar_url) {
       setImagePreview(`http://localhost:5000${layanan.gambar_url}`);
     } else {
-      // Fallback ke gambar dari imageMap
       setImagePreview(imageMap[layanan.nama_layanan] || "");
     }
     
@@ -268,7 +302,6 @@ const Admin = () => {
     e.preventDefault();
     
     try {
-      // Create form data to handle file upload
       const formData = new FormData();
       formData.append('nama_layanan', currentLayanan.nama_layanan);
       formData.append('deskripsi', currentLayanan.deskripsi);
@@ -283,7 +316,6 @@ const Admin = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Note: Don't include Content-Type when sending FormData
         },
         body: formData
       });
@@ -293,7 +325,6 @@ const Admin = () => {
         throw new Error(errorData.message || "Gagal menambahkan layanan");
       }
       
-      // Refresh layanan dan tutup modal
       fetchLayanan();
       closeModals();
       
@@ -307,7 +338,6 @@ const Admin = () => {
     e.preventDefault();
     
     try {
-      // Create form data to handle file upload
       const formData = new FormData();
       formData.append('nama_layanan', currentLayanan.nama_layanan);
       formData.append('deskripsi', currentLayanan.deskripsi);
@@ -322,7 +352,6 @@ const Admin = () => {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Note: Don't include Content-Type when sending FormData
         },
         body: formData
       });
@@ -332,7 +361,6 @@ const Admin = () => {
         throw new Error(errorData.message || "Gagal mengupdate layanan");
       }
       
-      // Refresh layanan dan tutup modal
       fetchLayanan();
       closeModals();
       
@@ -356,7 +384,6 @@ const Admin = () => {
         throw new Error(errorData.message || "Gagal menghapus layanan");
       }
       
-      // Refresh layanan dan tutup modal
       fetchLayanan();
       closeModals();
       
@@ -382,16 +409,15 @@ const Admin = () => {
       })
       .then(() => {
         alert(`Reservasi telah di-${status}`);
-        const updatedReservations = reservations.map(r => 
+        const updatedAllReservations = allReservations.map(r => 
           r.id === id ? { ...r, status } : r
         );
-        
-        setReservations(updatedReservations);
-        
-        // Update statistik
-        const pending = updatedReservations.filter(r => r.status === "pending").length;
-        const confirmed = updatedReservations.filter(r => r.status === "confirmed").length;
-        const canceled = updatedReservations.filter(r => r.status === "canceled").length;
+        setAllReservations(updatedAllReservations); 
+        filterReservationsByDate(reportType, updatedAllReservations); 
+
+        const pending = updatedAllReservations.filter(r => r.status === "pending").length;
+        const confirmed = updatedAllReservations.filter(r => r.status === "confirmed").length;
+        const canceled = updatedAllReservations.filter(r => r.status === "canceled").length;
         
         setStatsData(prev => ({
           ...prev,
@@ -428,7 +454,6 @@ const Admin = () => {
       .catch(err => console.error("Gagal menghapus user:", err));
   };
 
-  // Format tanggal reservasi dan jam secara terpisah
   const formatReservationDate = (dateString) => {
     if (!dateString) return "Tidak tersedia";
     try {
@@ -464,7 +489,6 @@ const Admin = () => {
     }
   };
 
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
@@ -477,7 +501,6 @@ const Admin = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Menentukan waktu berdasarkan jam
   const getGreeting = () => {
     const hours = new Date().getHours();
     if (hours >= 5 && hours < 12) {
@@ -491,6 +514,64 @@ const Admin = () => {
     }
   };
 
+  const getBarColor = (index) => {
+    const colors = ['#5564eb', '#28a745', '#ffc107', '#dc3545', '#17a2b8'];
+    return colors[index % colors.length];
+  };
+
+  // Fungsi baru untuk menghasilkan data laporan keuangan
+  const generateReportData = () => {
+    const completedReservations = displayedReservations.filter(res => res.status === "confirmed");
+    const canceledReservations = displayedReservations.filter(res => res.status === "canceled");
+
+    const totalTransactions = displayedReservations.length;
+    const completedTransactions = completedReservations.length;
+    const canceledTransactions = canceledReservations.length;
+    
+    const totalRevenue = completedReservations.reduce((sum, res) => sum + parseFloat(res.harga || 0), 0);
+    const totalCanceledValue = canceledReservations.reduce((sum, res) => sum + parseFloat(res.harga || 0), 0);
+    const averageRevenue = completedReservations.length > 0 ? totalRevenue / completedReservations.length : 0;
+    
+    const serviceAnalysis = {};
+    completedReservations.forEach(res => {
+      if (!serviceAnalysis[res.nama_layanan]) {
+        serviceAnalysis[res.nama_layanan] = { count: 0, total: 0 };
+      }
+      serviceAnalysis[res.nama_layanan].count++;
+      serviceAnalysis[res.nama_layanan].total += parseFloat(res.harga || 0);
+    });
+
+    return {
+      totalTransactions,
+      completedTransactions,
+      canceledTransactions,
+      totalRevenue,
+      totalCanceledValue,
+      averageRevenue,
+      serviceAnalysis
+    };
+  };
+
+  // Fungsi baru untuk mengunduh laporan PDF
+  const handleDownloadPDF = () => {
+    const input = document.getElementById('laporan-keuangan');
+    if (input) {
+      const periodeText = `Laporan Keuangan Salon - Periode ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}`;
+      html2canvas(input, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps= pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${periodeText}.pdf`);
+      });
+    }
+  };
+
+  const reportData = generateReportData();
+
   return (
     <div className={`dashboard ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
       {/* Sidebar */}
@@ -498,7 +579,6 @@ const Admin = () => {
         <div className="sidebar-header">
           <div className="header-content">
             <h2>LPS Admin</h2>
-            {/* Toggle Button - kondisional berdasarkan status sidebar */}
             <button className="sidebar-toggle" onClick={toggleSidebar}>
               <i className={`fas ${sidebarOpen ? 'fa-times' : 'fa-bars'}`}></i>
             </button>
@@ -535,7 +615,7 @@ const Admin = () => {
             className={activeTab === "laporan" ? "active" : ""} 
             onClick={() => setActiveTab("laporan")}
           >
-            <i className="fas fa-file-alt"></i> <span>Laporan</span>
+            <i className="fas fa-file-alt"></i> <span>Laporan Kuangan </span>
           </button>
         </nav>
         
@@ -666,11 +746,12 @@ const Admin = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {reservations.slice(0, 5).map(res => (
+                      {/* Menggunakan displayedReservations untuk tabel ini juga, mengambil 5 teratas */}
+                      {displayedReservations.slice(0, 5).map(res => (
                         <tr key={res.id}>
                           <td>{res.nama}</td>
                       <td>{res.nama_layanan}</td>
-                      <td>{formatReservationDate(res.tanggal_reservasi, res.created_at)}</td>
+                      <td>{formatReservationDate(res.tanggal_reservasi)}</td>
                       <td>
                         <span className={`status-badge ${res.status || "none"}`}>
                           {res.status === "pending" && "Menunggu"}
@@ -716,10 +797,16 @@ const Admin = () => {
         )}
         
         {/* Tabel Reservasi */}
-            {activeTab === "reservasi" && (
+          {activeTab === "reservasi" && (
           <div className="data-card">
-            <div className="card-header">
-              <h2>Daftar Reservasi</h2>
+          <div className="card-header">
+            <h2>Daftar Reservasi</h2>
+            <div className="reservation-filters">
+              <button onClick={() => fetchReport("semua")} className={reportType === "semua" ? "active" : ""}>Semua</button>
+              <button onClick={() => fetchReport("harian")} className={reportType === "harian" ? "active" : ""}>Harian</button>
+              <button onClick={() => fetchReport("mingguan")} className={reportType === "mingguan" ? "active" : ""}>Mingguan</button>
+              <button onClick={() => fetchReport("bulanan")} className={reportType === "bulanan" ? "active" : ""}>Bulanan</button>
+            </div>
             </div>
             <div className="table-responsive">
               <table className="data-table">
@@ -736,8 +823,8 @@ const Admin = () => {
           </tr>
         </thead>
         <tbody>
-          {reservations.length > 0 ? (
-            reservations.map(res => (
+          {displayedReservations.length > 0 ? ( 
+            displayedReservations.map(res => (
           <tr key={res.id}>
             <td>{res.nama}</td>
             <td>{res.nama_layanan}</td>
@@ -1118,59 +1205,148 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Tabel Laporan */}
+        {/* Tabel Laporan Keuangan yang baru */}
         {activeTab === "laporan" && (
           <div className="data-card">
             <div className="card-header">
-              <h2>Laporan Reservasi</h2>
-              <div className="report-filters">
+              <h2>Laporan Keuangan</h2>
+              <div className="reservation-filters">
+                <button onClick={() => fetchReport("semua")} className={reportType === "semua" ? "active" : ""}>Semua</button>
                 <button onClick={() => fetchReport("harian")} className={reportType === "harian" ? "active" : ""}>Harian</button>
                 <button onClick={() => fetchReport("mingguan")} className={reportType === "mingguan" ? "active" : ""}>Mingguan</button>
                 <button onClick={() => fetchReport("bulanan")} className={reportType === "bulanan" ? "active" : ""}>Bulanan</button>
               </div>
+              <button className="btn-download-pdf" onClick={handleDownloadPDF}>
+                <i className="fas fa-download"></i> Unduh PDF
+              </button>
             </div>
+            
+            <div id="laporan-keuangan" className="report-content-container">
+              <div className="report-header">
+                <h3>Laporan Keuangan</h3>
+                <p>Periode: {reportType.charAt(0).toUpperCase() + reportType.slice(1)}</p>
+              </div>
 
-            <div className="table-responsive">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Nama</th>
-                    <th>Layanan</th>
-                    <th>Tanggal</th>
-                    <th>Waktu</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reportData.length > 0 ? (
-                    reportData.map((res) => (
-                      <tr key={res.id}>
-                        <td>{res.nama}</td>
-                        <td>{res.nama_layanan}</td>
-                        <td>{formatReservationDate(res.tanggal_reservasi)}</td>
-                        <td>{formatReservationTime(res.jam)}</td>
-                        <td>{res.status}</td>
+              {/* Ringkasan Keuangan */}
+              <div className="section summary-section">
+                <h4>Ringkasan Keuangan</h4>
+                <div className="summary-card">
+                  <div className="summary-item">
+                    <span>Total Transaksi:</span>
+                    <span className="amount">{reportData.totalTransactions}</span>
+                  </div>
+                  <div className="summary-item">
+                    <span>Transaksi Selesai:</span>
+                    <span className="amount completed">{reportData.completedTransactions}</span>
+                  </div>
+                  <div className="summary-item">
+                    <span>Transaksi Dibatalkan:</span>
+                    <span className="amount cancelled">{reportData.canceledTransactions}</span>
+                  </div>
+                  <div className="summary-item">
+                    <span>Total Pemasukan:</span>
+                    <span className="amount">{formatRupiah(reportData.totalRevenue)}</span>
+                  </div>
+                  <div className="summary-item">
+                    <span>Total Pembatalan:</span>
+                    <span className="amount negative">{formatRupiah(reportData.totalCanceledValue)}</span>
+                  </div>
+                  <div className="summary-item">
+                    <span>Rata-rata Pendapatan per Reservasi:</span>
+                    <span className="amount">{formatRupiah(reportData.averageRevenue)}</span>
+                  </div>
+                  <div className="summary-item total-summary">
+                    <span><strong>Total Pendapatan Bersih:</strong></span>
+                    <span className="amount" style={{ fontSize: '20px' }}>{formatRupiah(reportData.totalRevenue)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detail Transaksi */}
+              <div className="section detail-section">
+                <h4>Detail Transaksi</h4>
+                <div className="table-responsive">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Layanan</th>
+                        <th>Harga</th>
+                        <th>Tanggal Reservasi</th>
+                        <th>Status</th>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="no-data">Tidak ada data</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {displayedReservations.length > 0 ? (
+                        displayedReservations.map((res, index) => (
+                          <tr key={`${res.id}-${index}`}>
+                            <td>{index + 1}</td>
+                            <td>{res.nama}</td>
+                            <td>{res.nama_layanan}</td>
+                            <td>{formatRupiah(res.harga)}</td>
+                            <td>{formatReservationDate(res.tanggal_reservasi)}</td>
+                            <td>
+                                <span className={`status-badge ${res.status || "none"}`}>
+                                    {res.status === "pending" && "Menunggu"}
+                                    {res.status === "confirmed" && "Dikonfirmasi"}
+                                    {res.status === "canceled" && "Dibatalkan"}
+                                    {!res.status && "Belum Diproses"}
+                                </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6" className="no-data">Tidak ada data transaksi untuk periode ini.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Analisis Layanan */}
+              <div className="section analysis-section">
+                <h4>Analisis Layanan</h4>
+                <div className="table-responsive">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Layanan</th>
+                        <th>Jumlah Reservasi</th>
+                        <th>Total Pendapatan</th>
+                        <th>Persentase</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.keys(reportData.serviceAnalysis).length > 0 ? (
+                        Object.entries(reportData.serviceAnalysis).map(([layanan, data], index) => {
+                          const percentage = reportData.totalRevenue > 0 ? ((data.total / reportData.totalRevenue) * 100).toFixed(1) : 0;
+                          return (
+                            <tr key={index}>
+                              <td>{layanan}</td>
+                              <td>{data.count}</td>
+                              <td>{formatRupiah(data.total)}</td>
+                              <td>{percentage}%</td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="no-data">Tidak ada data layanan yang dikonfirmasi.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-// Fungsi untuk mendapatkan warna bar chart sesuai dengan indeks
-const getBarColor = (index) => {
-  const colors = ['#5564eb', '#28a745', '#ffc107', '#dc3545', '#17a2b8'];
-  return colors[index % colors.length];
 };
 
 export default Admin;
