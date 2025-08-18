@@ -26,6 +26,23 @@ const imageMap = {
 const LandingPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [layananData, setLayananData] = useState([]);
+  const [statsData, setStatsData] = useState({
+    popularServices: []
+  });
+
+  useEffect(() => {
+    const fetchPopularServices = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/popular-services/popular-services");
+        if (!response.ok) throw new Error("Failed to fetch popular services");
+        const data = await response.json();
+        setStatsData({ popularServices: data });
+      } catch (error) {
+        console.error("Error fetching popular services:", error);
+      }
+    };
+    fetchPopularServices();
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -137,6 +154,43 @@ const LandingPage = () => {
             </Link>
           </div>
         </section>
+
+        {/* Popular Services Section */}
+        <section className="popular-services-section">
+          <h2 className="section-title">Layanan Terpopuler</h2>
+          <div className="service-cards">
+            {statsData.popularServices.length > 0 ? (
+              statsData.popularServices.map((service, index) => (
+                <div className="service-card" key={index}>
+                  <div className="service-info">
+                    <h3 className="service-title">
+                      {service.nama_layanan || service.name}
+                    </h3>
+                    <p className="service-count">
+                      {service.total_reservasi || service.count} reservasi
+                    </p>
+                    <div className="service-bar-container">
+                      <div
+                        className="service-bar"
+                        style={{
+                          width: `${
+                            ((service.total_reservasi || service.count) /
+                              (statsData.popularServices[0].total_reservasi ||
+                                statsData.popularServices[0].count)) *
+                            100
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>Tidak ada data layanan terpopuler.</p>
+            )}
+          </div>
+        </section>
+
 
         {/* Testimonials Section */}
         <section className="testimonials-section">

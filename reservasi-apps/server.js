@@ -4,6 +4,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const reservasiRoutes = require('./routes/reservasiRoutes');
 const layananRoutes = require('./routes/layananRoutes');
+const popularServicesRoutes = require('./routes/popularServicesRoutes');
 const pool = require('./db');
 const path = require('path');
 const { authenticate, authorizeAdmin } = require('./middleware/authMiddleware');
@@ -51,6 +52,9 @@ app.use('/reservasi', reservasiRoutes);
 
 // Routes layanan
 app.use('/layanan', layananRoutes);
+
+// Routes popular services
+app.use('/popular-services', popularServicesRoutes);
 
 // Mount layanan route separately without prefix
 app.get('/layanan', async (req, res) => {

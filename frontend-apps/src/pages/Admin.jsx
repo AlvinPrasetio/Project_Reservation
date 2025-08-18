@@ -72,6 +72,23 @@ const Admin = () => {
     totalLayanan: 0,
     popularServices: []
   });
+  const [reportData, setReportData] = useState([]);
+  const [reportType, setReportType] = useState("harian");
+
+  const fetchReport = async (type) => {
+  try {
+    const res = await fetch(`http://localhost:5000/reservasi/laporan?tipe=${type}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Gagal mengambil laporan");
+    const data = await res.json();
+    setReportData(data);
+    setReportType(type);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   const navigate = useNavigate();
   const adminName = localStorage.getItem("userName") || "Admin";
   const currentDate = new Date().toLocaleDateString('id-ID', { 
@@ -514,6 +531,12 @@ const Admin = () => {
           >
             <i className="fas fa-spa"></i> <span>Layanan</span>
           </button>
+          <button
+            className={activeTab === "laporan" ? "active" : ""} 
+            onClick={() => setActiveTab("laporan")}
+          >
+            <i className="fas fa-file-alt"></i> <span>Laporan</span>
+          </button>
         </nav>
         
         <div className="sidebar-footer">
@@ -548,6 +571,7 @@ const Admin = () => {
               {activeTab === "reservasi" && "Manajemen Reservasi"}
               {activeTab === "users" && "Manajemen Pengguna"}
               {activeTab === "layanan" && "Daftar Layanan"}
+              {activeTab === "laporan" && "Laporan"}
             </h2>
           </div>
         </div>
@@ -702,10 +726,10 @@ const Admin = () => {
         <thead>
           <tr>
             <th>Nama</th>
-            <th>No HP</th>
+            <th>Layanan</th>
+            <th>Harga</th>
             <th>Tanggal Reservasi</th>
             <th>Waktu Reservasi</th>
-            <th>Layanan</th>
             <th>Bukti Transfer</th>
             <th>Status</th>
             <th>Aksi</th>
@@ -716,10 +740,10 @@ const Admin = () => {
             reservations.map(res => (
           <tr key={res.id}>
             <td>{res.nama}</td>
-            <td>{res.no_hp}</td>
+            <td>{res.nama_layanan}</td>
+            <td>{formatPrice(res.harga)}</td>
             <td>{formatReservationDate(res.tanggal_reservasi)}</td>
             <td>{formatReservationTime(res.jam)}</td>
-            <td>{res.nama_layanan}</td>
             <td>
               {res.bukti_transfer ? (
                 <button
@@ -1091,6 +1115,51 @@ const Admin = () => {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Tabel Laporan */}
+        {activeTab === "laporan" && (
+          <div className="data-card">
+            <div className="card-header">
+              <h2>Laporan Reservasi</h2>
+              <div className="report-filters">
+                <button onClick={() => fetchReport("harian")} className={reportType === "harian" ? "active" : ""}>Harian</button>
+                <button onClick={() => fetchReport("mingguan")} className={reportType === "mingguan" ? "active" : ""}>Mingguan</button>
+                <button onClick={() => fetchReport("bulanan")} className={reportType === "bulanan" ? "active" : ""}>Bulanan</button>
+              </div>
+            </div>
+
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Nama</th>
+                    <th>Layanan</th>
+                    <th>Tanggal</th>
+                    <th>Waktu</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportData.length > 0 ? (
+                    reportData.map((res) => (
+                      <tr key={res.id}>
+                        <td>{res.nama}</td>
+                        <td>{res.nama_layanan}</td>
+                        <td>{formatReservationDate(res.tanggal_reservasi)}</td>
+                        <td>{formatReservationTime(res.jam)}</td>
+                        <td>{res.status}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="no-data">Tidak ada data</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

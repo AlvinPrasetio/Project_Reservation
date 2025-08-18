@@ -329,6 +329,185 @@ main {
   margin-top: 2.5rem;
 }
 
+/* Popular Services Section */
+.popular-services-section {
+  padding: 4rem 1.5rem;
+  background-color: white;
+}
+
+.popular-services-section .section-title {
+  color: #333;
+  margin-bottom: 3rem;
+}
+
+.popular-services-section .service-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .popular-services-section .service-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .popular-services-section .service-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.popular-services-section .service-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 107, 107, 0.1);
+}
+
+.popular-services-section .service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.popular-services-section .service-info {
+  text-align: center;
+}
+
+.popular-services-section .service-title {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.popular-services-section .service-count {
+  font-size: 1.1rem;
+  color: #ff6b6b;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.service-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.service-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #ff9c9c);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+  position: relative;
+}
+
+.service-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Popular service ranking */
+.popular-services-section .service-card:nth-child(1) {
+  border-left: 4px solid #ffd700;
+  position: relative;
+}
+
+.popular-services-section .service-card:nth-child(1)::before {
+  content: '🥇';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-size: 1.5rem;
+}
+
+.popular-services-section .service-card:nth-child(2) {
+  border-left: 4px solid #c0c0c0;
+  position: relative;
+}
+
+.popular-services-section .service-card:nth-child(2)::before {
+  content: '🥈';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-size: 1.5rem;
+}
+
+.popular-services-section .service-card:nth-child(3) {
+  border-left: 4px solid #cd7f32;
+  position: relative;
+}
+
+.popular-services-section .service-card:nth-child(3)::before {
+  content: '🥉';
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  font-size: 1.5rem;
+}
+
+/* Responsive untuk layanan terpopuler */
+@media (max-width: 768px) {
+  .popular-services-section {
+    padding: 2rem 1rem;
+  }
+  
+  .popular-services-section .service-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .popular-services-section .service-card {
+    padding: 1.5rem;
+  }
+  
+  .popular-services-section .service-title {
+    font-size: 1.2rem;
+  }
+  
+  .popular-services-section .service-count {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .popular-services-section .service-card {
+    padding: 1.2rem;
+  }
+  
+  .popular-services-section .service-title {
+    font-size: 1.1rem;
+  }
+  
+  .service-bar-container {
+    height: 6px;
+  }
+}
+
 /* Testimonial section */
 .testimonials-section {
   padding: 4rem 1.5rem;
