@@ -57,7 +57,7 @@ const Login = () => {
       if (data.user && data.user.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/users');
+        navigate('/');
       }
       
     } catch (err) {
@@ -184,7 +184,7 @@ const Login = () => {
           </form>
           
           <p className="auth-footer">
-            Belum punya akun? <Link to="/register">Register</Link>
+            Belum punya akun? <Link to="/register">Daftar</Link>
           </p>
         </div>
       </div>
